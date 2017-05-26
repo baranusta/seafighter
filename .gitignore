@@ -30,3 +30,7 @@
 *.exe
 *.out
 *.app
+SeaFighter/SeaFighter/glm/doc/
+SeaFighter/SeaFighter/glm/test/
+SeaFighter/Debug/
+SeaFighter/.vs/
