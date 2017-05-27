@@ -5,6 +5,7 @@
 #include <GLFW\glfw3.h>
 
 #include <functional>
+#include <iostream>
 
 class GLController
 {

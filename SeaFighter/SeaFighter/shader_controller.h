@@ -14,9 +14,9 @@ class ShaderController {
 	struct shaderObj 
 	{
 		int usedBy;
-		GLuint vertex_shader, fragment_shader, shaderProg;
+		GLuint vertex_shader, fragment_shader, shaderProgram;
 		shaderObj(GLuint vshader, GLuint fshader, GLuint shaderProg) : 
-			vertex_shader(vshader), fragment_shader(fshader), shaderProg(shaderProg),usedBy(0)
+			vertex_shader(vshader), fragment_shader(fshader), shaderProgram(shaderProg),usedBy(1)
 		{}
 
 		shaderObj() :
@@ -25,6 +25,8 @@ class ShaderController {
 	};
 
 	static std::unordered_map<std::string, shaderObj> shaders;
+	static std::string currentlyUsedName;
+
 	std::string name;
 
 
@@ -44,7 +46,7 @@ class ShaderController {
 		std::string source = readFile(fileName);
 		const char * c_source = source.c_str();
 		GLuint shader = glCreateShader(type);
-		glShaderSource(shader, 1, &c_source, NULL);
+		glShaderSource(shader, 1, &c_source, nullptr);
 		glCompileShader(shader);
 		GLint compiled;
 		glGetShaderiv(shader, GL_COMPILE_STATUS, &compiled);
@@ -61,27 +63,45 @@ class ShaderController {
 public:
 	ShaderController(std::string fileName_V, std::string fileName_F)
 	{
+		GLenum err;
+		while ((err = glGetError()) != GL_NO_ERROR) {
+			std::cout << "OpenGL errorbara1: " << err << gluErrorString(err) << std::endl;
+		}
 		name = fileName_V + fileName_F;
 		if (shaders.find(name) == shaders.end())
 		{
+			GLuint prog = glCreateProgram();
 			GLuint vertex_shader = compile(GL_VERTEX_SHADER, fileName_V);
 			GLuint fragment_shader = compile(GL_FRAGMENT_SHADER, fileName_F);
-			GLuint prog = glCreateProgram();
 			glAttachShader(prog, vertex_shader);
 			glAttachShader(prog, fragment_shader);
 			glLinkProgram(prog);
+			GLint linkSuccessful;
+			glGetProgramiv(prog, GL_LINK_STATUS, &linkSuccessful);
+
+			// If it didn't, then read and print the link log
+			if (!linkSuccessful) {
+				GLint logLength;
+				glGetProgramiv(prog, GL_INFO_LOG_LENGTH, &logLength);
+
+				std::vector<GLchar> logBuffer(logLength);
+				glGetProgramInfoLog(prog, logLength, nullptr, logBuffer.data());
+
+				std::cout << logBuffer.data();
+				throw std::logic_error(logBuffer.data());
+			}
 			shaders.insert({ name, shaderObj(vertex_shader,fragment_shader,prog)});
 		}
 	}
 
-	operator GLuint() { return shaders[name].shaderProg; }
-	void operator()() { glUseProgram(shaders[name].shaderProg); }
+	operator GLuint() { return shaders[name].shaderProgram; }
+	void operator()() { glUseProgram(shaders[name].shaderProgram);}
 
 	~ShaderController() 
 	{
 		if (shaders[name].usedBy == 1)
 		{
-			glDeleteProgram(shaders[name].shaderProg);
+			glDeleteProgram(shaders[name].shaderProgram);
 			glDeleteShader(shaders[name].vertex_shader);
 			glDeleteShader(shaders[name].fragment_shader);
 			shaders.erase(name);

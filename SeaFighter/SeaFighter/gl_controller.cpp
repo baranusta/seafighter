@@ -2,6 +2,14 @@
 std::function<void(int)> g_keyFunction; 
 std::function<void(int, double, double)> g_mouseFunction;
 
+void glErrorChck()
+{
+	GLenum err;
+	while ((err = glGetError()) != GL_NO_ERROR) {
+		std::cout << "OpenGL errorwww: " << err << gluErrorString(err) << std::endl;
+	}
+}
+
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
 	if (action == GLFW_PRESS)
@@ -37,7 +45,6 @@ bool GLController::initialize(int width, int height, std::string name)
 	if (!glfwInit()) {
 		return false;
 	}
-
 	// Create window and OpenGL 4.3 debug context
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -60,11 +67,11 @@ bool GLController::initialize(int width, int height, std::string name)
 
 void GLController::startGame(std::function<void(void)> gameloop)
 {
+	glEnable(GL_DEPTH_TEST);
 	while (!glfwWindowShouldClose(window)) {
 		glfwPollEvents();
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 		gameloop();
 		glfwSwapBuffers(window);
 	}
