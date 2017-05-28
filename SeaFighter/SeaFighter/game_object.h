@@ -8,6 +8,7 @@
 #include "glm\glm\gtc\matrix_transform.hpp"
 
 
+
 struct Vertex {
 	glm::vec3 Position;
 	glm::vec3 Normal;
@@ -54,18 +55,18 @@ public:
 	}
 
 	//Returns false if given model is not found
-	bool loadModel()
+	bool loadModel(std::string object_name)
 	{
 		tinyobj::attrib_t attrib;
 		std::vector<tinyobj::shape_t> shapes;
 		std::vector<tinyobj::material_t> materials;
 		std::string err;
 
-		if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &err, "dragon.obj")) {
+		if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &err, object_name.c_str() )) {//"dragon.obj" //Older name of the object
 			return false;
 		}
 
-
+		//
 		// Read triangle vertices from OBJ file
 		for (const auto& shape : shapes) {
 			for (const auto& index : shape.mesh.indices) {
