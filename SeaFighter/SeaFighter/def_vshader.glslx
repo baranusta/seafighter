@@ -16,5 +16,5 @@ void main(void) {
     mvp;
     view_pos;
     time;
-    gl_Position = vec4(pos,1.0);
+    gl_Position = mvp * vec4(pos,1.0);
 }

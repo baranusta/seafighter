@@ -145,6 +145,7 @@
   <ItemGroup>
     <ClInclude Include="game_object.h" />
     <ClInclude Include="gl_controller.h" />
+    <ClInclude Include="sea.h" />
     <ClInclude Include="shader_controller.h" />
     <ClInclude Include="tiny_obj_loader.h" />
   </ItemGroup>

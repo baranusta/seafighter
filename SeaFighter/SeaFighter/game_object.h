@@ -17,28 +17,18 @@ struct Vertex {
 
 class GameObject
 {
-private:
+
+protected:
 	glm::vec3 pos;
 	std::vector<Vertex> vertices;
 	ShaderController shader;
-
 	GLuint vao;
 	GLuint vbo;
 
-
-public:
-	GameObject(): shader("def_vshader.glslx", "def_fshader.glslx")
-	{
-		vertices = {Vertex(glm::vec3(0,0,0),glm::vec3(0,0,1)),
-					Vertex(glm::vec3(-1,0,0),glm::vec3(0,0,1)),
-					Vertex(glm::vec3(0,1,0),glm::vec3(0,0,1)) };
-		glGenBuffers(1, &vbo);
+	virtual void updateDataGPU() {
 		glBindBuffer(GL_ARRAY_BUFFER, vbo);
 		glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(), GL_STATIC_DRAW);
 
-		// Bind vertex data to shader inputs using their index (location)
-		// These bindings are stored in the Vertex Array Object
-		glGenVertexArrays(1, &vao);
 		glBindVertexArray(vao);
 
 		// The position vectors should be retrieved from the specified Vertex Buffer Object with given offset and stride
@@ -52,6 +42,16 @@ public:
 		glBindBuffer(GL_ARRAY_BUFFER, vbo);
 		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void*>(offsetof(Vertex, Normal)));
 		glEnableVertexAttribArray(1);
+	}
+
+public:
+	GameObject(glm::vec3 position, std::string vShader = "def_vshader.glslx", std::string fShader= "def_fshader.glslx") 
+		: pos(position), shader(vShader,fShader)
+	{
+		glGenBuffers(1, &vbo);
+		glGenVertexArrays(1, &vao);
+
+		updateDataGPU();
 	}
 
 	//Returns false if given model is not found
@@ -70,6 +70,7 @@ public:
 		// Read triangle vertices from OBJ file
 		for (const auto& shape : shapes) {
 			for (const auto& index : shape.mesh.indices) {
+				if (attrib.normals.size() > 0) {
 				Vertex vertex(
 					glm::vec3(attrib.vertices[3 * index.vertex_index + 0],
 								attrib.vertices[3 * index.vertex_index + 1],
@@ -78,6 +79,17 @@ public:
 								attrib.normals[3 * index.normal_index + 1],
 								attrib.normals[3 * index.normal_index + 2]));
 				vertices.push_back(vertex);
+				}
+				else
+				{
+
+					Vertex vertex(
+						glm::vec3(attrib.vertices[3 * index.vertex_index + 0],
+							attrib.vertices[3 * index.vertex_index + 1],
+							attrib.vertices[3 * index.vertex_index + 2]),
+						glm::vec3(0,0,0));
+					vertices.push_back(vertex);
+				}
 
 				//+++++++++++++++++++++++++++++++++++
 				//+++++++++++++++++++++++++++++++++++
@@ -113,4 +125,5 @@ public:
 		glDrawArrays(GL_TRIANGLES, 0, vertices.size());
 
 	}
+
 };

@@ -1,5 +1,6 @@
 #include "gl_controller.h"
 #include "game_object.h"
+#include "sea.h"
 
 
 
@@ -9,6 +10,7 @@
 
 #include <iostream>
 #include <vector>
+#include "glm/glm/gtc/matrix_transform.hpp"
 
 void setMouseFunctions()
 {
@@ -22,23 +24,11 @@ void setMouseFunctions()
 
 void setKeyFunctions()
 {
-	GLController::getInstance().setKeyPressedFunction([](int button) {
-		switch (button)
-		{
-		case GLFW_KEY_LEFT:
-			std::cout << "turn left";
-			break;
-		case GLFW_KEY_RIGHT:
-			std::cout << "turn right";
-			break;
-
-		}
-	});
 }
 
 int main()
 {
-	int width = 400;
+	int width = 600;
 	int height = 500;
 
 	if (GLController::getInstance().initialize(width, height, "Sea Fighter"))
@@ -46,17 +36,42 @@ int main()
 		GLenum err;
 		setMouseFunctions();
 		setKeyFunctions();
-		GameObject boat;
-		glm::vec3 viewPos = glm::vec3(-0.8f, 0.7f, -0.5f);
-
-		glm::mat4 view = glm::lookAt(viewPos, glm::vec3(0.0f, -0.05f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		//GameObject boat(glm::vec3(0,0,0));
+		//boat.loadModel("Objects/DavidHeadCleanMax.obj");
+		Sea see(glm::vec3(0, 0, 0),"sea_vs.glslx");
+		see.setSize(2, 2, 50, 50);
+		glm::vec3 viewPos = glm::vec3(.0f, -2.0f, 2.0f);
+		glm::mat4 view = glm::lookAt(viewPos, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 		glm::mat4 proj = glm::perspective(45.0f, width / static_cast<float>(height), 0.1f, 10.0f);
 		glm::mat4 model = glm::mat4();
 		glm::mat4 mvp = proj * view * model;
+
+
+
+		GLController::getInstance().setKeyPressedFunction([&](int button) {
+			switch (button)
+			{
+			case GLFW_KEY_LEFT:
+				model = glm::rotate(model, (glm::mediump_float)0.05, glm::vec3(0, 0, -1));
+				mvp = proj * view * model;
+				break;
+			case GLFW_KEY_RIGHT:
+				model = glm::rotate(model, (glm::mediump_float)0.05, glm::vec3(0, 0, 1));
+				mvp = proj * view * model;
+				break;
+
+			}
+		});
+
+
 		GLController::getInstance().startGame([&]() {
 			//Game code here
-			boat.draw(mvp, viewPos, glfwGetTime());
-
+			//boat.draw(mvp, viewPos, glfwGetTime());
+			/*glm::mat4 speed = glm::mat4();
+			speed[0][0] = 1.1;
+			model = model * speed;
+			mvp = proj * view * model;*/
+			see.draw(mvp, viewPos, glfwGetTime());
 		});
 	}
 	GLController::getInstance().stop();
