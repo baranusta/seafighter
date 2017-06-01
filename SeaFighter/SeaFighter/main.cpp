@@ -1,6 +1,7 @@
 #include "gl_controller.h"
 #include "game_object.h"
 #include "sea.h"
+#include "island_factory.h"
 
 
 
@@ -38,13 +39,21 @@ int main()
 		setKeyFunctions();
 		//GameObject boat(glm::vec3(0,0,0));
 		//boat.loadModel("Objects/DavidHeadCleanMax.obj");
-		Sea see(glm::vec3(0, 0, 0),"sea_vs.glslx");
+		Sea see(glm::vec3(0, 0, 0),"sea_vs.glslx", "sea_fs.glslx");
 		see.setSize(2, 2, 50, 50);
+
+		IslandFactory factory(2, 2,0.1);
+		auto islands = factory.getIslands(1);
+
+		glm::vec3 light = glm::vec3(-5.0f, 10.0f, 5.0f);
+		bool isLightMoving = false;
+
 		glm::vec3 viewPos = glm::vec3(.0f, -2.0f, 2.0f);
 		glm::mat4 view = glm::lookAt(viewPos, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 		glm::mat4 proj = glm::perspective(45.0f, width / static_cast<float>(height), 0.1f, 10.0f);
 		glm::mat4 model = glm::mat4();
 		glm::mat4 mvp = proj * view * model;
+
 
 
 
@@ -60,18 +69,25 @@ int main()
 				mvp = proj * view * model;
 				break;
 
+			case GLFW_KEY_A:
+				isLightMoving = !isLightMoving;
+				break;
+
 			}
 		});
 
-
+		float frame = 0;
 		GLController::getInstance().startGame([&]() {
-			//Game code here
-			//boat.draw(mvp, viewPos, glfwGetTime());
-			/*glm::mat4 speed = glm::mat4();
-			speed[0][0] = 1.1;
-			model = model * speed;
-			mvp = proj * view * model;*/
-			see.draw(mvp, viewPos, glfwGetTime());
+			
+			if(isLightMoving)
+				light = glm::rotateY(light, (glm::mediump_float)1/10000);
+	
+			std::cout << light[0] << " " << light[2]<<std::endl;
+			
+			see.draw(mvp, viewPos, light);
+			for (auto & island : islands)
+				island.draw(mvp, viewPos, glfwGetTime());
+			frame++;
 		});
 	}
 	GLController::getInstance().stop();

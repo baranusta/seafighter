@@ -2,13 +2,6 @@
 std::function<void(int)> g_keyFunction; 
 std::function<void(int, double, double)> g_mouseFunction;
 
-void glErrorChck()
-{
-	GLenum err;
-	while ((err = glGetError()) != GL_NO_ERROR) {
-		std::cout << "OpenGL errorwww: " << err << gluErrorString(err) << std::endl;
-	}
-}
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {

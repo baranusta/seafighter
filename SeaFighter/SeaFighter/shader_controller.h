@@ -55,7 +55,7 @@ class ShaderController {
 			glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &length);
 			std::string log(length, ' ');
 			glGetShaderInfoLog(shader, length, &length, &log[0]);
-			std::cout << log;
+			std::cout <<fileName << " " << log;
 			throw std::logic_error(log);
 		}
 		return shader;
@@ -90,8 +90,10 @@ public:
 				std::cout << logBuffer.data();
 				throw std::logic_error(logBuffer.data());
 			}
-			shaders.insert({ name, shaderObj(vertex_shader,fragment_shader,prog)});
+			shaders.insert({ name, shaderObj(vertex_shader,fragment_shader,prog) });
 		}
+		else
+			shaders[name].usedBy++;
 	}
 
 	operator GLuint() { return shaders[name].shaderProgram; }

@@ -11,10 +11,13 @@ layout(location = 1) in vec3 normal; // World-space normal
 
 
 out vec3 fragPos;
+out vec3 fragNormal;
+
 
 void main(void) {
     mvp;
     view_pos;
     time;
+    
     gl_Position = mvp * vec4(pos,1.0);
 }
