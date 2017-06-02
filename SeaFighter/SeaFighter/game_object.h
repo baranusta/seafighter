@@ -11,6 +11,14 @@ class GameObject
 {
 
 protected:
+	struct Color {
+		glm::vec4 ambient;
+		glm::vec4 diffuse;
+		glm::vec4 specConst;
+
+	};
+
+	Color color;
 	glm::vec3 pos;
 	std::vector<Vertex> vertices;
 	ShaderController shader;
@@ -109,10 +117,10 @@ public:
 		return true;
 	}
 
-	virtual void draw(glm::mat4 mvp, glm::vec3 viewPos, glm::vec3 light)
+	void passBasicsToGPU(glm::mat4 mvp, glm::vec3 viewPos, glm::vec3 light)
 	{
-		//maybe first check whether it should be drawn 
 		glBindVertexArray(vao);
+		glBindBuffer(GL_ARRAY_BUFFER, vbo);
 		shader();
 
 		glUniformMatrix4fv(0, 1, GL_FALSE, glm::value_ptr(mvp));
@@ -121,12 +129,17 @@ public:
 		glUniform3fv(1, 1, glm::value_ptr(light));
 		// Set view position
 		glUniform3fv(2, 1, glm::value_ptr(viewPos));
-
 		// Expose current time in shader uniform
 		glUniform1f(3, static_cast<float>(glfwGetTime()));
+		glUniform4fv(4, 1, glm::value_ptr(color.ambient));
+		glUniform4fv(5, 1, glm::value_ptr(color.diffuse));
+		glUniform4fv(6, 1, glm::value_ptr(color.specConst));
 
-		// Bind vertex data
-		// Bind the texture to slot 0
+	}
+
+	virtual void draw(glm::mat4 mvp, glm::vec3 viewPos, glm::vec3 light)
+	{
+		passBasicsToGPU(mvp, viewPos, light);
 		//glActiveTexture(GL_TEXTURE0);
 		//glBindTexture(GL_TEXTURE_2D, texToon);
 		

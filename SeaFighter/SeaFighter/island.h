@@ -3,12 +3,17 @@
 #include "height_field.h"
 #include <algorithm>
 
+#include <iomanip>
+
 class Island : public GameObject, public HeightField
 {
 public:
 	Island()
 		: GameObject(glm::vec3())
 	{
+		color.diffuse = glm::vec4(0.4, .25, .16, 1.0);
+		color.ambient = glm::vec4(0.3, .2, .1, 1.0);
+		color.specConst = glm::vec4(0, 0, 0, 1.0);
 	}
 
 	void addHeightMap(float startX, float startY, std::vector<std::vector<double>> heightMap)
@@ -34,42 +39,29 @@ public:
 			m_startY = startY;
 			m_heightMap = heightMap;
 		}
+		printHeightMap();
 	}
 
-	void buildIsland(double gridSize) 
+	void buildIsland(double gridSize)
 	{
-		pos = glm::vec3(m_startX + m_heightMap[0].size()/2 * gridSize, m_startY + m_heightMap.size()/2 * gridSize, -0.2);
+		pos = glm::vec3(m_startX + m_heightMap[0].size() / 2 * gridSize, m_startY + m_heightMap.size() / 2 * gridSize, -0.2);
 		Surface surface = generateSurface(m_startX, m_startY, gridSize, gridSize, m_heightMap[0].size(), m_heightMap.size());
 		indices = surface.indices;
 		vertices = surface.vertices;
 		surface.clean();
 
-		for (int i = 0; i < m_heightMap.size(); i++)
-		{
-			for (int j = 0; j < m_heightMap[0].size(); j++)
-			{
-				vertices[i * m_heightMap[0].size() + j].Position[2] = m_heightMap[i][j];
-			}
-		}
-
+		setZPositions();
+		setNormals();
 		updateDataGPU();
 	}
 
 
-	void draw(glm::mat4 mvp, glm::vec3 viewPos, float time)
+	void draw(glm::mat4 mvp, glm::vec3 viewPos, glm::vec3 light)
 	{
 		//maybe first check whether it should be drawn
-		glBindVertexArray(vao);
-		glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
-		shader();
-		glUniformMatrix4fv(0, 1, GL_FALSE, glm::value_ptr(mvp));
-		glUniform3fv(2, 1, glm::value_ptr(viewPos));
-		
-		//std::cout << glfwGetTime()<<std::endl;
-		glUniform1f(3, static_cast<float>(glfwGetTime()));
-		//glUniform1f(4, startX);
-		//glUniform1f(5, startY);
+		passBasicsToGPU(mvp, viewPos, light);
+
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
 		// Bind the texture to slot 0
 		//glActiveTexture(GL_TEXTURE0);
@@ -79,7 +71,7 @@ public:
 		printError("Island draw end");
 	}
 
-protected: 
+protected:
 	//these are the start positions in real world
 	float m_startX, m_startY;
 	std::vector<std::vector<double>> m_heightMap;
@@ -96,14 +88,14 @@ private:
 			width = std::max(m_heightMap[0].size(), heightMap[0].size() + startX);
 
 		if (startY < 0)
-			height = std::max(heightMap.size(), m_heightMap.size() - startY); 
+			height = std::max(heightMap.size(), m_heightMap.size() - startY);
 		else
-			height = std::max(m_heightMap.size(), heightMap[0].size() + startY); 
+			height = std::max(m_heightMap.size(), heightMap[0].size() + startY);
 
-		return std::vector<std::vector<double>>(height, std::vector<double>(width));
+		return std::vector<std::vector<double>>(height, std::vector<double>(width, -0.1f));
 	}
 
-	void fillTheMap(int xOffset, int yOffset, const std::vector<std::vector<double>>& fromHeightMap, std::vector<std::vector<double>>& toHeightMap) 
+	void fillTheMap(int xOffset, int yOffset, const std::vector<std::vector<double>>& fromHeightMap, std::vector<std::vector<double>>& toHeightMap)
 	{
 		for (int i = 0; i < fromHeightMap.size(); i++)
 		{
@@ -111,6 +103,43 @@ private:
 			{
 				toHeightMap[yOffset + i][xOffset + j] = fromHeightMap[i][j];
 			}
+		}
+	}
+
+	void setZPositions()
+	{
+		for (int i = 0; i < m_heightMap.size(); i++)
+		{
+			for (int j = 0; j < m_heightMap[0].size(); j++)
+			{
+				vertices[i * m_heightMap[0].size() + j].Position[2] = m_heightMap[i][j];
+			}
+		}
+	}
+
+	void setNormals()
+	{
+		for (auto& vertex: vertices)
+		{
+			vertex.Normal = glm::vec3();
+			vertex.hasNormal = true;
+		}
+		for (int i = 0; i < indices.size(); i += 3)
+		{
+			int vertex1 = indices[i];
+			int vertex2 = indices[i + 1];
+			int vertex3 = indices[i + 2];
+			glm::vec3 edge1 = vertices[vertex2].Position - vertices[vertex1].Position;
+			glm::vec3 edge2 = vertices[vertex3].Position - vertices[vertex1].Position;
+			glm::vec3 Normal = glm::normalize(glm::cross(edge1, edge2));
+			
+			vertices[vertex1].Normal += Normal;
+			vertices[vertex2].Normal += Normal;
+			vertices[vertex3].Normal += Normal;
+		}
+		for (auto& vertex : vertices)
+		{
+			vertex.Normal = glm::normalize(vertex.Normal);
 		}
 	}
 
@@ -128,5 +157,14 @@ private:
 		glBindVertexArray(0);
 	}
 
+	void printHeightMap()
+	{
 
+		for (auto wid : m_heightMap)
+		{
+			for (auto val : wid)
+				std::cout << std::setw(5) << std::setprecision(3) << val << " ";
+			std::cout << std::endl;
+		}
+	}
 };

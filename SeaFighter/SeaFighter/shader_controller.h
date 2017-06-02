@@ -32,6 +32,7 @@ class ShaderController {
 
 	std::string readFile(std::string fileName)
 	{
+		fileName = "shaders/" + fileName;
 		std::ifstream file(fileName);
 		if (!file.is_open())
 			throw "Lol wrong filename";

@@ -1,0 +1,58 @@
+#version 430
+
+// Model/view/projection matrix
+layout(location = 0) uniform mat4 mvp;
+layout(location = 3) uniform float time;
+layout(location = 4) uniform float gridWidth;
+layout(location = 5) uniform float gridHeight;
+
+// Per-vertex attributes
+layout(location = 0) in vec3 pos; // World-space position
+
+#define M_PI 3.1415926535897932384626433832795
+
+out vec3 fragPos;
+out vec3 fragNormal;
+
+//
+//          neigh2
+//  neigh3  -   x   -   neigh1
+//          neigh4
+//
+
+
+const float waveCount = 50;
+const float waveSpeed = 5;
+const float waveHeight = 0.01;
+
+vec3 calculateVertexPosition(vec2 oldPos)
+{
+    return vec3(oldPos.x, oldPos.y, (cos(oldPos.x * waveCount + time* waveSpeed) + sin(oldPos.y * waveCount + time * waveSpeed)) * waveHeight);
+}
+
+vec3 calculateNormal(vec3 edge1,vec3 edge2)
+{
+    return normalize(cross(edge1,edge2));
+}
+
+
+void main(void) {
+
+    fragPos = calculateVertexPosition(vec2(pos.x,pos.y));
+
+    vec3 neigh1  = calculateVertexPosition(vec2(fragPos.x + gridWidth   , fragPos.y));
+    vec3 neigh2  = calculateVertexPosition(vec2(fragPos.x               , fragPos.y + gridHeight));
+    vec3 neigh3  = calculateVertexPosition(vec2(fragPos.x - gridWidth   , fragPos.y));
+    vec3 neigh4  = calculateVertexPosition(vec2(fragPos.x               , fragPos.y - gridHeight));
+
+    
+    vec3 accumNormal = (calculateNormal(neigh1 - fragPos, neigh2 - fragPos) + 
+                        calculateNormal(neigh2 - fragPos, neigh3 - fragPos) + 
+                        calculateNormal(neigh3 - fragPos, neigh4 - fragPos) + 
+                        calculateNormal(neigh4 - fragPos, neigh1 - fragPos));
+
+
+    fragNormal = normalize(accumNormal);
+    
+    gl_Position = mvp * vec4(fragPos,1.);
+}

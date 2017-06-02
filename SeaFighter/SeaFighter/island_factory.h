@@ -5,7 +5,7 @@
 #include <time.h>  
 #include <cmath>  
 
-#define ISLAND_ITER_COUNT 3
+#define ISLAND_ITER_COUNT 2
 
 class IslandFactory
 {
@@ -15,6 +15,10 @@ private:
 
 	float unitLength;
 	int xCount, yCount;
+
+	int minR = 3;
+	int maxR = 10;
+
 
 	struct islandData {
 		int startX;
@@ -57,14 +61,15 @@ private:
 
 	std::vector<std::vector<double>> buildIsland(int r)
 	{
-		std::vector<std::vector<double>> heightMap(2 * r + 1, std::vector<double>(2 * r + 1, -0.));
+		std::vector<std::vector<double>> heightMap(2 * r + 1, std::vector<double>(2 * r + 1, -0.1));
 
 		int xPos, yPos;
 		for (int j = 0; j < ISLAND_ITER_COUNT * r; j++)
 		{
-			xPos = (rand() % (r * 2 + 1));
-			yPos = (rand() % (r * 2 + 1));
-			float addedHeight = unitLength * (rand() % (int)(r * 0.6));
+			int offset = r * 0.4;
+			xPos = (rand() % (2 * (r - offset))) + offset;
+			yPos = (rand() % (2 * (r - offset))) + offset;
+			float addedHeight = (rand() % r + 1) * 0.6;
 
 			for (int k = 1; k < r + r; k++)
 			{
@@ -75,7 +80,10 @@ private:
 					//std::cout << l << " " << k << std::endl;
 					float distance = glm::distance(centerVec, toVec);
 					if (distance < addedHeight)
-						heightMap[k][l] += sqrt(addedHeight*addedHeight - distance* distance);
+					{
+						float f = sqrt(addedHeight*addedHeight - distance* distance) * unitLength;
+						heightMap[k][l] += sqrt(addedHeight*addedHeight - distance* distance) * unitLength;
+					}
 				}
 			}
 		}
@@ -91,16 +99,21 @@ private:
 	}
 
 public:
-	IslandFactory(double worldWidth, double worldHeight, double gridSize)
+	IslandFactory(double worldWidth, double worldHeight, double gridSize, int maxRGrid, int minRGrid)
 	{
 		unitLength = gridSize;
 		xCount = worldWidth / unitLength;
 		yCount = worldHeight / unitLength;
+		minR = minRGrid;
+		maxR = maxRGrid;
 	}
 
 	//It may not return exactly request island count
 	std::vector<Island> getIslands(int islandCount)
 	{
+		if (xCount <= islandCount * maxR)
+			throw " island counts are too much for this map";
+
 		std::cout << "islands are being generated." << std::endl;
 		srand(time(NULL));
 
@@ -109,12 +122,11 @@ public:
 
 		for (int i = 0; i < islandCount; i++)
 		{
-			int min = xCount < yCount ? xCount : yCount;
+			int minSize = xCount < yCount ? xCount : yCount;
 
-			int r = rand() % (min / (islandCount + 1)) + 1;
-			int emptyCells = 5;
-			int xCenter = rand() % (xCount - 1 - 2 * emptyCells - 2 * r) + r + emptyCells;
-			int yCenter = rand() % (yCount - 1 - 2 * emptyCells - 2 * r) + r + emptyCells;
+			int r = rand() % (maxR - minR) + minR;
+			int xCenter = rand() % (xCount - 1 - 2 * r) + r;
+			int yCenter = rand() % (yCount - 1 - 2 * r) + r;
 
 
 			auto heightMap = buildIsland(r);

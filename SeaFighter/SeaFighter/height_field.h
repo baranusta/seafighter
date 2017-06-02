@@ -39,8 +39,8 @@ protected:
 				surface.indices.push_back(j + i * xCount + 1);
 				surface.indices.push_back(j + (i + 1) * xCount);
 				surface.indices.push_back(j + i * xCount + 1);
-				surface.indices.push_back(j + (i + 1) * xCount);
 				surface.indices.push_back(j + (i + 1) * xCount + 1);
+				surface.indices.push_back(j + (i + 1) * xCount);
 			}
 		}
 		return surface;
