@@ -1,0 +1,34 @@
+#version 430
+
+// Model/view/projection matrix
+layout(location = 0) uniform mat4 mvp;
+layout(location = 2) uniform vec3 view_pos;
+layout(location = 3) uniform float time;
+layout(location = 6) uniform vec3 newPos;
+layout(location = 7) uniform float size;
+
+
+// Per-vertex attributes
+layout(location = 0) in vec3 pos; // World-space position
+layout(location = 1) in vec3 normal; // World-space normal
+
+out vec3 fragPos;
+out vec3 fragNormal;
+
+void main(void) {
+    
+	view_pos;
+
+    vec3 animation = vec3(0.0 , sin(pos.y * 10.0 + time * 2.0) * 0.01, 0.0);
+    vec3 finalPos = pos + newPos + animation + vec3(pos.x*size, pos.y*size, pos.z*size);
+
+    //gl_Position = mvp * vec4(finalPos , 1.0) ; 
+    // Transform 3D position into on-screen position
+    gl_Position = mvp * vec4(finalPos, 1.0);
+
+    // Pass position and normal through to fragment shader
+   fragPos = pos * vec3(5,5,5);
+   fragNormal = normal;
+
+}
+
