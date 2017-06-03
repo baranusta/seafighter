@@ -75,7 +75,7 @@ int main()
 			auto islands = factory.getIslands(10);
 
 			Player player(glm::vec3(0, 0, 0));
-			player.loadModel("Objects/boat.obj", "Objects/gun.obj");
+			player.loadModel("Objects/boat_new.obj", "Objects/gun_new.obj");
 			PlayerKeyboardStates p_keyboardStates;
 
 
