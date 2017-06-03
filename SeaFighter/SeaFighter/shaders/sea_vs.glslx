@@ -22,12 +22,19 @@ out vec3 fragNormal;
 
 
 const float waveCount = 50;
-const float waveSpeed = 5;
-const float waveHeight = 0.01;
+const float waveSpeed1 = 5;
+const float waveSpeed2 = 3;
+const float waveSpeed3 = 0.2;
+const float waveHeight1 = 0.01;
+const float waveHeight2 = 0.005;
+const float waveHeight3 = 0.003;
 
 vec3 calculateVertexPosition(vec2 oldPos)
 {
-    return vec3(oldPos.x, oldPos.y, (cos(oldPos.x * waveCount + time* waveSpeed) + sin(oldPos.y * waveCount + time * waveSpeed)) * waveHeight);
+    return vec3(oldPos.x, oldPos.y,
+        cos(oldPos.x * waveCount + time* waveSpeed1) * waveHeight1 + 
+        sin(oldPos.y * waveCount + time * waveSpeed2) * waveHeight2 + 
+        cos(oldPos.y * waveCount + time * waveSpeed3) * waveHeight3);
 }
 
 vec3 calculateNormal(vec3 edge1,vec3 edge2)

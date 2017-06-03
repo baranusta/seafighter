@@ -149,6 +149,7 @@
     <ClInclude Include="height_field.h" />
     <ClInclude Include="island.h" />
     <ClInclude Include="island_factory.h" />
+    <ClInclude Include="player.h" />
     <ClInclude Include="sea.h" />
     <ClInclude Include="shader_controller.h" />
     <ClInclude Include="tiny_obj_loader.h" />

@@ -6,8 +6,8 @@
 #include "glm\glm\glm.hpp"
 #include "glm\glm\gtc\type_ptr.hpp"
 #include "glm\glm\gtx\rotate_vector.hpp"
+#include "glm\glm\gtx\vector_angle.hpp"
 #include "glm\glm\gtc\matrix_transform.hpp"
-
 #include <vector>
 #include <iostream>
 #include <string>

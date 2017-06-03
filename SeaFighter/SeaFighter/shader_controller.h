@@ -62,6 +62,11 @@ class ShaderController {
 		return shader;
 	}
 public:
+	ShaderController()
+	{
+
+	}
+
 	ShaderController(std::string fileName_V, std::string fileName_F)
 	{
 		GLenum err;

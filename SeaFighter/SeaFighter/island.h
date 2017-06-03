@@ -39,7 +39,7 @@ public:
 			m_startY = startY;
 			m_heightMap = heightMap;
 		}
-		printHeightMap();
+		//printHeightMap();
 	}
 
 	void buildIsland(double gridSize)

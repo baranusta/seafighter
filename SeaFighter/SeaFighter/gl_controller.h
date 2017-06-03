@@ -25,7 +25,8 @@ public:
 	}
 
 	void setMousePressFunction(std::function<void(int, double, double)> mouseFunction);
-	void setKeyPressedFunction(std::function<void(int)> keyFunction);
+	void setMouseTraceFunction(std::function<void(double, double)> mouseFunction);
+	void setKeyPressedFunction(std::function<void(int, bool)> keyFunction);
 	bool initialize(int width, int height, std::string name);
 	void startGame(std::function<void(void)> gameloop);
 	void stop();

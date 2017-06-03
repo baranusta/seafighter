@@ -53,9 +53,18 @@ protected:
 	}
 
 public:
+	GameObject()
+	{
+
+	}
+
 	GameObject(glm::vec3 position, std::string vShader = "def_vshader.glslx", std::string fShader= "def_fshader.glslx") 
 		: pos(position), shader(vShader,fShader)
 	{
+		color.diffuse = glm::vec4(0.4, .25, .16, 1.0);
+		color.ambient = glm::vec4(0.3, .2, .1, 1.0);
+		color.specConst = glm::vec4(0, 0, 0, 1.0);
+
 		glGenBuffers(1, &vbo);
 		glGenVertexArrays(1, &vao);
 
@@ -66,6 +75,11 @@ public:
 	{
 		glDeleteVertexArrays(1, &vao);
 		glDeleteBuffers(1, &vbo);
+	}
+
+	glm::vec3 getPosition()
+	{
+		return pos;
 	}
 
 
@@ -114,6 +128,7 @@ public:
 				//+++++++++++++++++++++++++++++++++++
 			}
 		}
+		updateDataGPU();
 		return true;
 	}
 
