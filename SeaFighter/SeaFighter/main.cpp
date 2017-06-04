@@ -3,7 +3,9 @@
 #include "sea.h"
 #include "island_factory.h"
 #include "player.h"
-
+#include "naval_mine.h"
+#include "naval_mine_factory.h"
+#include <typeinfo>
 
 
 #define TINYOBJLOADER_IMPLEMENTATION
@@ -73,6 +75,19 @@ int main()
 
 			IslandFactory factory(9, 9, 0.1, 7, 3);
 			auto islands = factory.getIslands(10);
+			
+
+			//Creat One Enemy
+			Mine newEnemy(glm::vec3(0,0,0));
+			newEnemy.loadModel();
+			float size = 0.0f;
+
+			//Create Enemies //There is now height here.
+			//Set almost same parameters as the objects IslandFactory
+			MineFactory enemyFactory(9, 9, 0.1, 7, 3);
+			auto enemies = enemyFactory.buildEnemies(islands,10);
+			for (auto & enemy : enemies)
+				enemy.loadModel();
 
 			Player player(glm::vec3(0, 0, 0));
 			player.loadModel("Objects/boat_new.obj", "Objects/gun_new.obj");
@@ -123,6 +138,12 @@ int main()
 					if (isPressed)
 						isLightMoving = !isLightMoving;
 					break;
+				case GLFW_KEY_R:
+					size += 0.15;
+					newEnemy.updateTexture("toon_map");
+					break;
+				case GLFW_KEY_E:
+					size -= 0.15f;
 				}
 			});
 
@@ -147,8 +168,11 @@ int main()
 				//draw functions
 				player.draw(viewPos, light);
 				see.draw(mvp, viewPos, light);
+				newEnemy.draw(mvp,viewPos,glfwGetTime(), glm::vec3(0,0,0),size);
 				for (auto & island : islands)
 					island.draw(mvp, viewPos, light);
+				for (auto & enemy : enemies)
+					enemy.draw(mvp, viewPos, glfwGetTime(), glm::vec3(1, 1, 0), 0.009);
 				frame++;
 			});
 
