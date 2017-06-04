@@ -23,7 +23,7 @@
     <ProjectGuid>{2F9738DD-C163-477F-A0A2-8DCD420983C7}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>SeaFighter</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.14393.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -149,6 +149,8 @@
     <ClInclude Include="height_field.h" />
     <ClInclude Include="island.h" />
     <ClInclude Include="island_factory.h" />
+    <ClInclude Include="naval_mine.h" />
+    <ClInclude Include="naval_mine_factory.h" />
     <ClInclude Include="player.h" />
     <ClInclude Include="sea.h" />
     <ClInclude Include="shader_controller.h" />
