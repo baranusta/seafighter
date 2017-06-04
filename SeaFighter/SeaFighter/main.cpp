@@ -59,8 +59,8 @@ glm::vec4 getWorldCoordinate(glm::mat4 matrix, int xPos, int yPos, int width, in
 
 int main()
 {
-	int width = 600;
-	int height = 500;
+	int width = 1200;
+	int height = 1000;
 
 	if (GLController::getInstance().initialize(width, height, "Sea Fighter"))
 	{
@@ -78,9 +78,9 @@ int main()
 			
 
 			//Creat One Enemy
-			Mine newEnemy(glm::vec3(0,0,0));
-			newEnemy.loadModel();
-			float size = 0.0f;
+			//Mine newEnemy(glm::vec3(0,0,0));
+			//newEnemy.loadModel();
+			float size = 0.009f;
 
 			//Create Enemies //There is now height here.
 			//Set almost same parameters as the objects IslandFactory
@@ -88,6 +88,7 @@ int main()
 			auto enemies = enemyFactory.buildEnemies(islands,10);
 			for (auto & enemy : enemies)
 				enemy.loadModel();
+			glm::vec3 newPos;
 
 			Player player(glm::vec3(0, 0, 0));
 			player.loadModel("Objects/boat_new.obj", "Objects/gun_new.obj");
@@ -140,10 +141,17 @@ int main()
 					break;
 				case GLFW_KEY_R:
 					size += 0.15;
-					newEnemy.updateTexture("toon_map");
+					//newEnemy.updateTexture("toon_map");
 					break;
 				case GLFW_KEY_E:
 					size -= 0.15f;
+					break;
+				case GLFW_KEY_Z:
+					newPos = glm::vec3(0,-1,0);
+					break;
+				case GLFW_KEY_C:
+					newPos = glm::vec3(0,1,0);
+					break;
 				}
 			});
 
@@ -168,11 +176,11 @@ int main()
 				//draw functions
 				player.draw(viewPos, light);
 				see.draw(mvp, viewPos, light);
-				newEnemy.draw(mvp,viewPos,glfwGetTime(), glm::vec3(0,0,0),size);
+				//newEnemy.draw(mvp,viewPos,glfwGetTime(), glm::vec3(0,0,0),size);
 				for (auto & island : islands)
 					island.draw(mvp, viewPos, light);
 				for (auto & enemy : enemies)
-					enemy.draw(mvp, viewPos, glfwGetTime(), glm::vec3(1, 1, 0), 0.009);
+					enemy.draw(mvp, viewPos, glfwGetTime(), glm::vec3(1, 1, 0), size);
 				frame++;
 			});
 

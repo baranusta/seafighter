@@ -262,8 +262,12 @@ class Mine
 
 public:
 
-	Mine() {
-
+	Mine() : pos(glm::vec3(1,1,1)), shader("navalmine_vshader.glslx", "navalmine_fshader.glslx")
+	{	
+		
+		vertices = { Vertex(glm::vec3(0,0,0),glm::vec3(0,0,1)),
+			Vertex(glm::vec3(-1,0,0),glm::vec3(0,0,1)),
+			Vertex(glm::vec3(0,1,0),glm::vec3(0,0,1)) };
 	}
 
 	Mine(glm::vec3 position) : pos(position), shader("navalmine_vshader.glslx", "navalmine_fshader.glslx")
@@ -280,8 +284,8 @@ public:
 	void buildMine(double gridSize)
 	{
 		pos = glm::vec3(m_startX , m_startY,-0.2);
-
-		updateDataGPU();
+		loadModel();
+		//updateDataGPU();
 	}
 
 	//Returns false if given model is not found
