@@ -4,8 +4,6 @@
 #include "island_factory.h"
 #include "text.h"
 #include "player.h"
-//#include <ft2build.h>
-//#include FT_FREETYPE_H
 
 
 #define TINYOBJLOADER_IMPLEMENTATION
@@ -158,7 +156,7 @@ int main()
 				frame++;
 
 				char text[256];
-				sprintf(text, "%.2f sec", glfwGetTime());
+				sprintf(text, "%.2f score", frame);
 				score.printText2D(text, 0.5, 0.5, 30);
 				
 			});
