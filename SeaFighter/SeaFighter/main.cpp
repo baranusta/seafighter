@@ -71,7 +71,7 @@ int main()
 		//boat.loadModel("Objects/DavidHeadCleanMax.obj");
 		try {
 
-			Text score(glm::vec3(0, 0, 0), "Holstein.DDS", "text_vs.glslx", "text_fs.glslx");
+			Text score("Holstein.DDS", "text_vs.glslx", "text_fs.glslx");
 			Sea see(glm::vec3(0, 1.5, 0), "sea_vs.glslx", "sea_fs.glslx");
 			see.setSize(20, 20, 500, 500);
 			
@@ -156,7 +156,7 @@ int main()
 				frame++;
 
 				char text[256];
-				sprintf(text, "%.2f score", frame);
+				sprintf(text, "%.2f score", glfwGetTime());
 				score.printText2D(text, 0.5, 0.5, 30);
 				
 			});

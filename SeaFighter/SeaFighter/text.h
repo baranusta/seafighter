@@ -15,7 +15,6 @@ private:
 	unsigned int Text2DUniformID;
 	ShaderController shader;
 	const char * texturePath;
-	glm::vec3 pos;
 
 	GLuint loadDDS(const char * imagepath) {
 
@@ -112,8 +111,8 @@ private:
 
 public:
 
-	Text(glm::vec3 position, const char * texture, std::string vShader = "text_vs.glslx", std::string fShader = "text_fs.glslx")
-		: pos(position), texturePath(texture),shader(vShader, fShader)
+	Text(const char * texture, std::string vShader = "text_vs.glslx", std::string fShader = "text_fs.glslx")
+		: texturePath(texture),shader(vShader, fShader)
 	{
 		// Initialize texture
 		Text2DTextureID = loadDDS(texturePath);
