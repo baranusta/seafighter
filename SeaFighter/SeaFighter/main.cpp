@@ -2,8 +2,10 @@
 #include "game_object.h"
 #include "sea.h"
 #include "island_factory.h"
+#include "text.h"
 #include "player.h"
-
+//#include <ft2build.h>
+//#include FT_FREETYPE_H
 
 
 #define TINYOBJLOADER_IMPLEMENTATION
@@ -55,8 +57,11 @@ glm::vec4 getWorldCoordinate(glm::mat4 matrix, int xPos, int yPos, int width, in
 	return worldPos;
 }
 
+
+
 int main()
 {
+
 	int width = 600;
 	int height = 500;
 
@@ -68,9 +73,10 @@ int main()
 		//boat.loadModel("Objects/DavidHeadCleanMax.obj");
 		try {
 
+			Text score(glm::vec3(0, 0, 0), "Holstein.DDS", "text_vs.glslx", "text_fs.glslx");
 			Sea see(glm::vec3(0, 1.5, 0), "sea_vs.glslx", "sea_fs.glslx");
 			see.setSize(20, 20, 500, 500);
-
+			
 			IslandFactory factory(9, 9, 0.1, 7, 3);
 			auto islands = factory.getIslands(10);
 
@@ -143,13 +149,18 @@ int main()
 				player.updateSpeed();
 				player.updatePosition();
 
-
 				//draw functions
 				player.draw(viewPos, light);
 				see.draw(mvp, viewPos, light);
 				for (auto & island : islands)
 					island.draw(mvp, viewPos, light);
+				
 				frame++;
+
+				char text[256];
+				sprintf(text, "%.2f sec", glfwGetTime());
+				score.printText2D(text, 0.5, 0.5, 30);
+				
 			});
 
 		}
