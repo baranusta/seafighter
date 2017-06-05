@@ -24,6 +24,7 @@ private:
 
 	void renderShadow()
 	{
+		glCullFace(GL_FRONT);
 		glViewport(0,0, shadowWidth, shadowHeight);
 
 		glBindFramebuffer(GL_FRAMEBUFFER, FramebufferName);
@@ -38,6 +39,7 @@ private:
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glViewport(0, 0, screenWidth, screenHeight);
+		glCullFace(GL_BACK);
 	}
 
 public:
@@ -93,12 +95,12 @@ public:
 			glm::mat4 depthViewMatrix = glm::lookAt(light, glm::vec3(0, 0, 0), glm::vec3(0, 0, 1));
 			glm::mat4 depthModelMatrix = glm::mat4(1.0);
 			lightMVP = depthProjectionMatrix * depthViewMatrix * depthModelMatrix;
-			renderShadow();
 		}
 	}
 
 	void renderScene(glm::vec3 viewPos, glm::mat4 cameraVp)
 	{
+		renderShadow();
 
 		// clear buffers
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);

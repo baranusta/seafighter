@@ -13,20 +13,19 @@ private:
 	float speed;
 
 	glm::vec3 gunDirection;
-	float gunAngle;
+	float gunScaleC;
 
 	GameObject boat, gun;
 
 public:
 	Player(glm::vec3 pos) : 
 		boat(glm::vec3(0,0,0),"player_vs.glslx"),
-		gun(glm::vec3(0, 0.15, 0.1), "player_vs.glslx")
+		gun(glm::vec3(0, 3, 0), "player_vs.glslx")
 	{
 		rotationAngle = 0;
 		acceleration = 0;
 
 		speed = 0;
-		gunAngle = 0;
 
 		direction = glm::vec3(0,1,0);
 		gunDirection = glm::vec3(0, 1, 0);
@@ -72,39 +71,36 @@ public:
 
 	void accelerate()
 	{
-		acceleration += 0.00000001;
+		acceleration += 0.0000001;
 	}
 
 	void decelerate()
 	{
-		acceleration -= 0.00000001;
+		acceleration -= 0.0000001;
 	}
 
 	void rotateGunTo(glm::vec3 toPosition)
 	{
-		glm::vec3 direction = toPosition - gun.getPosition();
+		glm::vec3 direction = toPosition - gunScaleC * gun.getPosition();
 		direction = glm::normalize(glm::vec3(direction[0],direction[1],0));
-		if(glm::cross(direction, gunDirection)[2]<0)
-			gunAngle += glm::angle(direction, gunDirection);
-		else
-			gunAngle -= glm::angle(direction, gunDirection);
-
-		float lim = glm::radians(360.);
-		gunAngle = gunAngle >= lim? gunAngle - lim: gunAngle<0? lim + gunAngle : gunAngle;
-		std::cout << glm::degrees(gunAngle) << std::endl;
+		float angle = glm::angle(direction, gunDirection);
+		if(glm::cross(direction, gunDirection)[2]>0)
+			angle *= -1;
+		std::cout << glm::degrees(angle) << std::endl;
 		gunDirection = direction;
-		gun.rotate(gunAngle, glm::vec3(0, 1, 0));
+		gun.rotate(angle, glm::vec3(0, 1, 0));
 	}
 
+	//model matrix can only be scale matrix
 	void setModel(glm::mat4 model)
 	{
-		//this->model = glm::rotate(model, (glm::mediump_float)glm::radians(90.), glm::vec3(1, 0, 0));
-		this->model = glm::translate(this->model, glm::vec3(0, -2, 0));
-		//this->model = glm::rotate(this->model, (glm::mediump_float)glm::radians(180.), glm::vec3(0, 1, 0));
-		//boat.setModel(this->model);
-		//gun.setModel(glm::translate(this->model, glm::vec3(0, 3, 1)));
-		boat.setModel(this->model);
-		gun.setModel(this->model);
+		float gunVsBoatScaleFactor = 0.9f;
+		gunScaleC = model[0][0] * gunVsBoatScaleFactor;
+		model = glm::translate(model, glm::vec3(0., 0., 0.9));
+		model = glm::rotate(model, (glm::mediump_float)glm::radians(90.), glm::vec3(1, 0, 0));
+		gun.setModel(glm::translate(glm::scale(model,glm::vec3(gunVsBoatScaleFactor)), gun.getPosition()));
+		gun.rotate(glm::radians(90.), glm::vec3(0, 1, 0));
+		boat.setModel(model);
 
 	}
 	

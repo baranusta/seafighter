@@ -17,9 +17,7 @@ in vec4 shadowMapPos;
 
 uniform sampler2D shadowMap;
 
-
-
-float ShadowCalculation(vec4 fragPosLightSpace)
+bool ShadowCalculation(vec4 fragPosLightSpace,float bias)
 {
     // perform perspective divide
     vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
@@ -30,24 +28,20 @@ float ShadowCalculation(vec4 fragPosLightSpace)
     // get depth of current fragment from light's perspective
     float currentDepth = projCoords.z;
     // check whether current frag pos is in shadow
-    float shadow = currentDepth > closestDepth  ? 1.0 : 0.0;
-
-    return shadow;
+    return currentDepth > closestDepth + bias ? true : false;
 }  
 
-
-
 void main() {
-    shadowMapPos;
     vec3 lightRay = normalize(lightPos - fragPos);
     float diffuseFact = dot(lightRay, fragNormal);
-    if(lightPos.z > 0. && diffuseFact > 0.)
-    {        
-        vec3 toEye = normalize(view_pos - fragPos);
-        vec3 reflect = -lightRay - 2. * (dot(fragNormal,-lightRay)) * fragNormal;
-        float specFact = pow(dot(toEye,reflect),16.);
-        outColor = ambient + diffuseFact * diffuseColor + specFact * specConst;
-    }
-    else
-        outColor = ambient;
+    float bias = max(0.05 * (1.0 - diffuseFact), 0.005);  
+        if(!ShadowCalculation(shadowMapPos,bias) && lightPos.z > 0. && diffuseFact > 0.)
+        {        
+            vec3 toEye = normalize(view_pos - fragPos);
+            vec3 reflect = -lightRay - 2. * (dot(fragNormal,-lightRay)) * fragNormal;
+            float specFact = pow(dot(toEye,reflect),16.);
+            outColor = ambient + diffuseFact * diffuseColor + specFact * specConst;
+        }
+        else
+            outColor = ambient;
 }

@@ -2,6 +2,7 @@
 #include "game.h"
 
 #include <iostream>
+#include <iomanip>
 #include <vector>
 
 
@@ -18,6 +19,7 @@ int main()
 			Game seaFighter(width, height);
 
 			float frame = 0;
+			float time = 0;
 			GLController::getInstance().startGame([&]() {
 				if (frame == 0 || seaFighter.shouldLightMove())
 				{

@@ -50,10 +50,10 @@ private:
 
 	void addAllObjectsToScene()
 	{
-		scene.addPlayer(&player, view * proj);
-		//scene.addChild(&sea);
-		//for (auto & island : islands)
-		//	scene.addChild(&island);
+		scene.addPlayer(&player, proj * view);
+		scene.addChild(&sea);
+		for (auto & island : islands)
+			scene.addChild(&island);
 	}
 
 	std::function<void(int, double, double)> mouseClickFunction = [](int button, double xpos, double ypos) {
@@ -101,9 +101,9 @@ private:
 		if (p_keyboardStates.isDecelerating)
 			player.decelerate();
 		if (p_keyboardStates.rotateLeft)
-			player.rotate(-0.01);
+			player.rotate(-0.03);
 		if (p_keyboardStates.rotateRight)
-			player.rotate(0.01);
+			player.rotate(0.03);
 	}
 
 
@@ -127,7 +127,7 @@ public:
 		islands = factory.getIslands(10);
 
 
-		player.loadModel("Objects/boat_new.obj", "Objects/gun_new.obj");
+		player.loadModel("Objects/boat17.obj", "Objects/gun3.obj");
 
 
 		lightPos = glm::vec3(-5.f, 10.0f, 3.f);
@@ -139,7 +139,7 @@ public:
 
 		inverseInitialMvp = glm::inverse(proj * view);
 
-		player.setModel(glm::scale(glm::mat4(), glm::vec3(0.9, 0.9, 0.9)));
+		player.setModel(glm::scale(glm::mat4(), glm::vec3(0.08, 0.08, 0.08)));
 
 		addAllObjectsToScene();
 
