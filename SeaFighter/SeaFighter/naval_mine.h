@@ -274,17 +274,24 @@ public:
 				//GameObject() : shader("vert.glslx", "fs.glslx")
 
 	{	
-		
 		vertices = { Vertex(glm::vec3(0,0,0),glm::vec3(0,0,1)),
 			Vertex(glm::vec3(-1,0,0),glm::vec3(0,0,1)),
 			Vertex(glm::vec3(0,1,0),glm::vec3(0,0,1)) };
 		
 	}
 
+	void createEnemiesMap(float startX, float startY) {
+		int startx = startX;
+		int starty = startY;
+		pos = glm::vec3(startx, starty, 0.0);
+		//loadModel();
+	}
+
+	//Check if the grid Size is bigger in order to recalculate the enemies position
 	void buildMine(double gridSize)
-	{
-		pos = glm::vec3(m_startX , m_startY,-0.2);
-		loadModel();
+	{	
+		//pos = glm::vec3(startx, starty,-0.2);
+		//loadModel();
 		//updateDataGPU();
 	}
 
@@ -411,6 +418,15 @@ public:
 
 	}
 
+	
+	bool animationExplotion() {
+
+
+
+
+		return true;
+	}
+
 	virtual void draw(glm::mat4& mvp, glm::vec3 viewPos, float time, glm::vec3 newPos, float size)
 	{
 		//maybe first check whether it should be drawn 
@@ -427,8 +443,9 @@ public:
 		// Expose current time in shader uniform
 		glUniform1f(3, static_cast<float>(glfwGetTime()));
 
-		//New movement and new Matrix
-		glUniform3fv(6, 1, glm::value_ptr(newPos));
+		//New position for the naval mine
+		//glUniform3fv(6, 1, glm::value_ptr(newPos));
+		glUniform3fv(6, 1, glm::value_ptr(pos));
 		glUniform1f(7, size);
 
 

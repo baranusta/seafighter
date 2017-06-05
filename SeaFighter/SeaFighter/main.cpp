@@ -59,9 +59,9 @@ glm::vec4 getWorldCoordinate(glm::mat4 matrix, int xPos, int yPos, int width, in
 
 int main()
 {
-	int width = 1200;
-	int height = 1000;
-
+	int width = 600;
+	int height = 500;
+	glm::vec3  newPos(0, 0, 0);
 	if (GLController::getInstance().initialize(width, height, "Sea Fighter"))
 	{
 		GLenum err;
@@ -88,7 +88,7 @@ int main()
 			auto enemies = enemyFactory.buildEnemies(islands,10);
 			for (auto & enemy : enemies)
 				enemy.loadModel();
-			glm::vec3 newPos;
+			std::string selectedTexture;
 
 			Player player(glm::vec3(0, 0, 0));
 			player.loadModel("Objects/boat_new.obj", "Objects/gun_new.obj");
@@ -142,15 +142,18 @@ int main()
 				case GLFW_KEY_R:
 					size += 0.15;
 					//newEnemy.updateTexture("toon_map");
+					selectedTexture = "toon_map";
 					break;
 				case GLFW_KEY_E:
 					size -= 0.15f;
+					selectedTexture = "universe";
 					break;
 				case GLFW_KEY_Z:
-					newPos = glm::vec3(0,-1,0);
 					break;
 				case GLFW_KEY_C:
-					newPos = glm::vec3(0,1,0);
+					break;
+				
+				case GLFW_KEY_X:
 					break;
 				}
 			});
@@ -178,9 +181,13 @@ int main()
 				see.draw(mvp, viewPos, light);
 				//newEnemy.draw(mvp,viewPos,glfwGetTime(), glm::vec3(0,0,0),size);
 				for (auto & island : islands)
-					island.draw(mvp, viewPos, light);
+					//island.draw(mvp, viewPos, light);
 				for (auto & enemy : enemies)
-					enemy.draw(mvp, viewPos, glfwGetTime(), glm::vec3(1, 1, 0), size);
+				{
+					enemy.draw(mvp, viewPos, glfwGetTime(), newPos, size);
+					//Change the texture of the collision mine
+					//enemy.updateTexture(selectedTexture);
+				}	
 				frame++;
 			});
 
