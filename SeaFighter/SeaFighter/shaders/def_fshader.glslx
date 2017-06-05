@@ -13,10 +13,32 @@ layout(location = 6) uniform vec4 specConst;
 
 in vec3 fragPos; // World-space position
 in vec3 fragNormal; // World-space position
+in vec4 shadowMapPos;
+
+uniform sampler2D shadowMap;
+
+
+
+float ShadowCalculation(vec4 fragPosLightSpace)
+{
+    // perform perspective divide
+    vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+    // transform to [0,1] range
+    projCoords = projCoords * 0.5 + 0.5;
+    // get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
+    float closestDepth = texture(shadowMap, projCoords.xy).r; 
+    // get depth of current fragment from light's perspective
+    float currentDepth = projCoords.z;
+    // check whether current frag pos is in shadow
+    float shadow = currentDepth > closestDepth  ? 1.0 : 0.0;
+
+    return shadow;
+}  
+
 
 
 void main() {
-    
+    shadowMapPos;
     vec3 lightRay = normalize(lightPos - fragPos);
     float diffuseFact = dot(lightRay, fragNormal);
     if(lightPos.z > 0. && diffuseFact > 0.)

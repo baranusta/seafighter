@@ -48,27 +48,43 @@ public:
 		Surface surface = generateSurface(m_startX, m_startY, gridSize, gridSize, m_heightMap[0].size(), m_heightMap.size());
 		indices = surface.indices;
 		vertices = surface.vertices;
+		
 		surface.clean();
 
 		setZPositions();
+		m_heightMap.clear();
+
 		setNormals();
 		updateDataGPU();
 	}
 
 
-	void draw(glm::mat4 mvp, glm::vec3 viewPos, glm::vec3 light)
+	void draw(glm::vec3 viewPos, glm::mat4 cameraVp, glm::mat4 lightVp, glm::vec3 light, GLuint textureId)
 	{
 		//maybe first check whether it should be drawn
 
-		passBasicsToGPU(mvp, viewPos, light);
+		passBasicsToGPU(shaderDraw, cameraVp, viewPos, light, lightVp, textureId);
 
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
-		// Bind the texture to slot 0
-		//glActiveTexture(GL_TEXTURE0);
-		//glBindTexture(GL_TEXTURE_2D, texToon);
-
 		glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, (void*)0);
 		printError("Island draw end");
+	}
+
+	void renderShadowMap(glm::mat4 lightVp)
+	{
+		glBindVertexArray(vao);
+		glBindBuffer(GL_ARRAY_BUFFER, vbo);
+		shaderShadow();
+		glUniform1i(9, 1);
+
+		glUniformMatrix4fv(0, 1, GL_FALSE, glm::value_ptr(lightVp));
+		glUniformMatrix4fv(7, 1, GL_FALSE, glm::value_ptr(model));
+		glUniform1f(3, static_cast<float>(glfwGetTime()));
+
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
+		glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, (void*)0);
+
+		printError("Island shadow end");
 	}
 
 protected:

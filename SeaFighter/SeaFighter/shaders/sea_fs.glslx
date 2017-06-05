@@ -7,31 +7,56 @@ layout(location = 1) uniform vec3 lightPos;
 layout(location = 2) uniform vec3 view_pos;
 layout(location = 3) uniform float time;
 
+uniform sampler2D shadowMap;
+
 in vec3 fragPos; // World-space position
 in vec3 fragNormal; // World-space position
+in vec4 shadowMapPos;
 
 const vec4 ambient = vec4(0.1,.14,0.18,1.0);
+const float bias = 0.011;
+
+bool ShadowCalculation(vec4 fragPosLightSpace)
+{
+    // perform perspective divide
+    vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+    // transform to [0,1] range
+    projCoords = projCoords * 0.5 + 0.5;
+    // get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
+    float closestDepth = texture(shadowMap, projCoords.xy).r; 
+    // get depth of current fragment from light's perspective
+    float currentDepth = projCoords.z;
+    // check whether current frag pos is in shadow
+    return currentDepth  > closestDepth + bias ? true : false;
+}  
 
 void main() {
-    vec3 lightRay = normalize(lightPos - fragPos);
-    float difFact = dot(lightRay, fragNormal);
-    if(difFact<0.)
+    if(ShadowCalculation(shadowMapPos))
+    {
         outColor = ambient;
-    else{
-        vec3 toEye = normalize(view_pos - fragPos);
-        vec3 reflect = -lightRay - 2. * (dot(fragNormal,-lightRay)) * fragNormal;
-        float specFact = dot(toEye,reflect);
-        float color = difFact + pow(specFact,16.);
-        if(color > 1.3)
-        {
-            float rand = fract(sin(time + fragPos.x)*100000.0);
-            if( rand > .982)
-                 outColor = vec4(0.9,0.9,0.9,1.0);
-            else if( rand > 0.978)
-                 outColor = vec4(0.85,0.85,0.85,1.0);
-        } 
-        else
-            outColor = ambient + vec4(color * 0.25,color * .35,color * 0.45,1.0);
-
     }
+    else
+    {
+        vec3 lightRay = normalize(lightPos - fragPos);
+        float difFact = dot(lightRay, fragNormal);
+        if(difFact<0.)
+            outColor = ambient;
+        else{
+            vec3 toEye = normalize(view_pos - fragPos);
+            vec3 reflect = -lightRay - 2. * (dot(fragNormal,-lightRay)) * fragNormal;
+            float specFact = dot(toEye,reflect);
+            float color = difFact + pow(specFact,16.);
+            if(color > 1.3)
+            {
+                float rand = fract(sin(time + fragPos.x)*100000.0);
+                if( rand > .982)
+                    outColor = vec4(0.9,0.9,0.9,1.0);
+                else if( rand > 0.978)
+                    outColor = vec4(0.85,0.85,0.85,1.0);
+            } 
+            else
+                outColor = ambient + vec4(color * 0.25,color * .35,color * 0.45,1.0);
+        }
+    }
+    
 }

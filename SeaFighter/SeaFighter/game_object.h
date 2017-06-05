@@ -3,6 +3,7 @@
 #include "shader_controller.h"
 #include "tiny_obj_loader.h"
 #include "common.h"
+#include "gl_controller.h"
 
 
 
@@ -21,9 +22,13 @@ protected:
 	Color color;
 	glm::vec3 pos;
 	std::vector<Vertex> vertices;
-	ShaderController shader;
+	ShaderController shaderDraw;
+	ShaderController shaderShadow;
+
 	GLuint vao;
 	GLuint vbo;
+
+	glm::mat4 model;
 
 	virtual void updateDataGPU() {
 		glBindBuffer(GL_ARRAY_BUFFER, vbo);
@@ -55,11 +60,10 @@ protected:
 public:
 	GameObject()
 	{
-
 	}
 
 	GameObject(glm::vec3 position, std::string vShader = "def_vshader.glslx", std::string fShader= "def_fshader.glslx") 
-		: pos(position), shader(vShader,fShader)
+		: pos(position), shaderDraw(vShader,fShader), shaderShadow(vShader, "shadow.glslx")
 	{
 		color.diffuse = glm::vec4(0.4, .25, .16, 1.0);
 		color.ambient = glm::vec4(0.3, .2, .1, 1.0);
@@ -67,6 +71,7 @@ public:
 
 		glGenBuffers(1, &vbo);
 		glGenVertexArrays(1, &vao);
+
 
 		updateDataGPU();
 	}
@@ -132,36 +137,87 @@ public:
 		return true;
 	}
 
-	void passBasicsToGPU(glm::mat4 mvp, glm::vec3 viewPos, glm::vec3 light)
+	virtual void setModel(glm::mat4 model)
+	{
+		this->model = model;
+	}
+
+	glm::mat4 getModel()
+	{
+		return model;
+	}
+
+	void rotate(float angle, glm::vec3 axis)
+	{
+		model = glm::rotate(model, angle, axis);
+	}
+
+	void passBasicsToGPU(ShaderController& shader,glm::mat4 vp, glm::vec3 viewPos, glm::vec3 light, glm::mat4 lightVp, GLuint textureId)
 	{
 		glBindVertexArray(vao);
+		printError("yossss5st");
 		glBindBuffer(GL_ARRAY_BUFFER, vbo);
+		printError("yossss4st");
 		shader();
 
-		glUniformMatrix4fv(0, 1, GL_FALSE, glm::value_ptr(mvp));
+		printError("asdasdff");
+		glUniform1i(9, 0);
+		printError("pfff");
+		glUniformMatrix4fv(0, 1, GL_FALSE, glm::value_ptr(vp));
+		glUniformMatrix4fv(8, 1, GL_FALSE, glm::value_ptr(lightVp));
+		glUniformMatrix4fv(7, 1, GL_FALSE, glm::value_ptr(model));
 
 		//light
 		glUniform3fv(1, 1, glm::value_ptr(light));
+		printError("pfff1");
 		// Set view position
 		glUniform3fv(2, 1, glm::value_ptr(viewPos));
+		printError("pfff2");
 		// Expose current time in shader uniform
 		glUniform1f(3, static_cast<float>(glfwGetTime()));
+		printError("pfff3");
 		glUniform4fv(4, 1, glm::value_ptr(color.ambient));
+		printError("pfff4");
 		glUniform4fv(5, 1, glm::value_ptr(color.diffuse));
+		printError("pfff5");
 		glUniform4fv(6, 1, glm::value_ptr(color.specConst));
+		printError("pfff6");
 
 	}
 
-	virtual void draw(glm::mat4 mvp, glm::vec3 viewPos, glm::vec3 light)
+	virtual void draw(glm::vec3 viewPos,glm::mat4 cameraVp, glm::mat4 lightVp, glm::vec3 light,  GLuint textureId)
 	{
-		passBasicsToGPU(mvp, viewPos, light);
+		passBasicsToGPU(shaderDraw, cameraVp, viewPos, light, lightVp, textureId);
 		//glActiveTexture(GL_TEXTURE0);
 		//glBindTexture(GL_TEXTURE_2D, texToon);
 		
 		//// Execute draw command
+		printError("qqqqqqqqq");
 		glDrawArrays(GL_TRIANGLES, 0, vertices.size());
+		printError("wwwwwwwwwwf");
 
 		printError("Game object draw end");
 	}
 
+	virtual void renderShadowMap(glm::mat4 lightVp)
+	{
+		printError("yo5");
+		glBindVertexArray(vao);
+		glBindBuffer(GL_ARRAY_BUFFER, vbo);
+		shaderShadow();
+
+		glUniform1i(9, 1);
+		glUniformMatrix4fv(0, 1, GL_FALSE, glm::value_ptr(lightVp));
+		glUniformMatrix4fv(7, 1, GL_FALSE, glm::value_ptr(model));
+
+		printError("yo2");
+		glUniform1f(3, static_cast<float>(glfwGetTime()));
+
+		printError("yo1");
+		//// Execute draw command
+		glDrawArrays(GL_TRIANGLES, 0, vertices.size());
+		printError("ya");
+
+		printError("Game object shadow end");
+	}
 };
