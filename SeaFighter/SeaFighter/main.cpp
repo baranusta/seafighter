@@ -62,6 +62,7 @@ int main()
 
 	int width = 600;
 	int height = 500;
+	char text[256];
 
 	if (GLController::getInstance().initialize(width, height, "Sea Fighter"))
 	{
@@ -155,7 +156,7 @@ int main()
 				
 				frame++;
 
-				char text[256];
+				
 				sprintf(text, "%.2f score", glfwGetTime());
 				score.printText2D(text, 0.5, 0.5, 30);
 				
