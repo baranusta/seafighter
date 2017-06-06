@@ -176,7 +176,6 @@ public:
 
 	void gameLoop(int frame)
 	{
-		char text[256];
 		if (frame == 0 || player.updatePosition())
 		{
 			updateCamera();
@@ -192,8 +191,8 @@ public:
 		}
 		
 		scene.renderScene(viewPos, proj * view);
-		sprintf(text, "%.2f score", glfwGetTime());
-		score.printText2D(text, 0.5, 0.5, 30);
+
+		score.printText2D(std::to_string(glfwGetTime()) + " score", 0.5, 0.5, 30);
 
 		for (std::list<Bullet*>::const_iterator iterator = bullets.begin(), end = bullets.end(); iterator != end;) {
 			Bullet* bullet = *iterator;
