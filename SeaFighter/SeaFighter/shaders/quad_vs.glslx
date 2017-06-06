@@ -2,11 +2,15 @@
 
 // Model/view/projection matrix
 layout(location = 0) in vec3 pos; // World-space position
+
+layout(location = 0) uniform mat4 Vp;
+layout(location = 1) uniform mat4 model;
+
 varying vec2 textureCoord;
 
 const vec2 madd=vec2(0.5,0.5);
 
 void main(void) {
     textureCoord = pos.xy*madd+madd;
-    gl_Position = vec4(pos,1.0);
+    gl_Position = Vp * model * vec4(pos,1.0);
 }

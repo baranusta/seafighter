@@ -18,7 +18,7 @@ public:
 		updateDataGPU();
 	}
 
-	void draw()
+	virtual void draw()
 	{
 		glBindVertexArray(vao);
 		glBindBuffer(GL_ARRAY_BUFFER, vbo);

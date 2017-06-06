@@ -142,8 +142,10 @@
     <ClCompile Include="common.h" />
     <ClCompile Include="gl_controller.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="utils.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="bullet.h" />
     <ClInclude Include="game.h" />
     <ClInclude Include="game_object.h" />
     <ClInclude Include="gl_controller.h" />
@@ -156,7 +158,6 @@
     <ClInclude Include="sea.h" />
     <ClInclude Include="shader_controller.h" />
     <ClInclude Include="tiny_obj_loader.h" />
-    <ClInclude Include="utils.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

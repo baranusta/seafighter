@@ -42,6 +42,11 @@ public:
 		//printHeightMap();
 	}
 
+	BBox getBBox()
+	{
+		return bBox;
+	}
+
 	void buildIsland(double gridSize)
 	{
 		pos = glm::vec3(m_startX + m_heightMap[0].size() / 2 * gridSize, m_startY + m_heightMap.size() / 2 * gridSize, -0.2);
@@ -52,6 +57,10 @@ public:
 		surface.clean();
 
 		setZPositions();
+		bBox.xMin = m_startX;
+		bBox.xMax = m_startX + gridSize * m_heightMap[0].size();
+		bBox.yMin = m_startY;
+		bBox.yMax = m_startY + gridSize * m_heightMap.size();
 		m_heightMap.clear();
 
 		setNormals();
@@ -91,6 +100,7 @@ protected:
 	//these are the start positions in real world
 	float m_startX, m_startY;
 	std::vector<std::vector<double>> m_heightMap;
+	BBox bBox;
 private:
 	std::vector<unsigned int> indices;
 	GLuint elementbuffer;

@@ -7,13 +7,16 @@
 #include "island_factory.h"
 #include "player.h"
 #include "scene.h"
-#include "utils.h"
+#include "bullet.h"
+
+#include <list>
 
 
 
 #define TINYOBJLOADER_IMPLEMENTATION
 #include "tiny_obj_loader.h"
 
+extern glm::vec4 getWorldCoordinate(glm::mat4 matrix, int xPos, int yPos, int width, int height);
 
 class Game
 {
@@ -35,6 +38,7 @@ private:
 	Scene scene;
 	Sea sea;
 	std::vector<Island> islands;
+	std::list<Bullet*> bullets;
 
 	glm::vec3 lightPos;
 	glm::vec3 viewPos;
@@ -56,10 +60,11 @@ private:
 			scene.addChild(&island);
 	}
 
-	std::function<void(int, double, double)> mouseClickFunction = [](int button, double xpos, double ypos) {
+	std::function<void(int, double, double)> mouseClickFunction = [&](int button, double xpos, double ypos) {
 		if (button == GLFW_MOUSE_BUTTON_LEFT)
 		{
-			std::cout << xpos << " " << ypos;
+			glm::vec3 direction = player.getGunDirection();
+			bullets.push_back(new Bullet(player.getPosition(), direction, islands));
 		}
 	};
 
@@ -148,17 +153,39 @@ public:
 		GLController::getInstance().setMousePressFunction(mouseClickFunction);
 	}
 
+	~Game()
+	{
+		for (auto bullet : bullets)
+			delete bullet;
+	}
+
 
 	void gameLoop(int frame)
 	{
-		updatePlayerState();
-		player.updateSpeed();
 		if (frame == 0 || player.updatePosition())
 		{
 			updateCamera();
 		}
 
+		updatePlayerState();
+		player.updateSpeed();
+
 		scene.renderScene(viewPos, proj * view);
+
+		for (std::list<Bullet*>::const_iterator iterator = bullets.begin(), end = bullets.end(); iterator != end;) {
+			Bullet* bullet = *iterator;
+			if (bullet->shouldRemove() && bullet)
+			{
+				delete bullet;
+				iterator = bullets.erase(iterator);
+			}
+			else
+			{
+				bullet->updatePosition();
+				bullet->draw(proj * view);
+				++iterator;
+			}
+		}
 	}
 
 	void updateLight()

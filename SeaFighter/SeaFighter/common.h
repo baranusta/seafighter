@@ -20,6 +20,10 @@ struct Vertex {
 	Vertex(glm::vec3 pos, glm::vec3 normal) :Position(pos), Normal(normal), hasNormal(true) {}
 };
 
+struct BBox {
+	float xMin, xMax, yMin, yMax;
+};
+
 inline void printError(std::string message)
 {
 	GLenum err;

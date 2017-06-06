@@ -91,6 +91,11 @@ public:
 		gun.rotate(angle, glm::vec3(0, 1, 0));
 	}
 
+	glm::vec3 getGunDirection()
+	{
+		return glm::rotateZ(gunDirection, -rotationAngle);
+	}
+
 	//model matrix can only be scale matrix
 	void setModel(glm::mat4 model)
 	{
