@@ -39,3 +39,10 @@ GLuint getTexture(std::string textureName)
 
 	return texture;
 }
+
+glm::mat4 rotateAround(glm::mat4 model, glm::vec3 toAround, float angle,glm::vec3 rotateAxis)
+{
+	model = glm::translate(model, toAround);
+	model = glm::rotate(model, angle, rotateAxis);
+	return glm::translate(model, -toAround);
+}

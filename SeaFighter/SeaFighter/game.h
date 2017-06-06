@@ -131,12 +131,12 @@ private:
 public:
 
 	Game(int width, int height) :
-		score("Holstein.DDS", "text_vs.glslx", "text_fs.glslx"),
+		score("Holstein.DDS"),
 		sea(glm::vec3(0, 1.5, 0), "sea_vs.glslx", "sea_fs.glslx"),
 		scene(width, height),
 		player(glm::vec3(0, 0, 0)),
-		monster(glm::vec3(0,3,0)),
-		isMonsterAlive(false),
+		monster(glm::vec3(0,3,-0.1)),
+		isMonsterAlive(true),
 		width(width),
 		height(height)
 	{
@@ -218,7 +218,6 @@ public:
 	void updateLight()
 	{
 		lightPos = glm::rotateY(lightPos, (glm::mediump_float)1 / 1000);
-		//std::cout << light[0] << " " << light[2] << std::endl;
 		scene.setLight(lightPos);
 	}
 

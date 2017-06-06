@@ -4,18 +4,16 @@
 #include "quad.h"
 #include <math.h>
 
-#define SCALE_CONST 0.2f
+#define SCALE_CONST 0.8f
+extern glm::mat4 rotateAround(glm::mat4 model, glm::vec3 toAround, float angle, glm::vec3 rotateAxis);
 
-extern GLuint getTexture(std::string textureName);
 class Monster : public GameObject
 {
 private:
-	Quad head;
-	Quad upperBody;
-	Quad lowerBody;
-	Quad tail;
-
-	GLuint texture;
+	GameObject head;
+	GameObject upperBody;
+	GameObject lowerBody;
+	GameObject tail;
 
 	float animationSpeed;
 
@@ -24,36 +22,40 @@ private:
 
 public:
 	Monster(glm::vec3 pos) :
-		//head(GameObject(glm::vec3())),
-		//upperBody(GameObject(glm::vec3())),
-		//lowerBody(GameObject(glm::vec3())),
-		//tail(GameObject(glm::vec3()))
-
-		head(Quad()),
-		upperBody(Quad(glm::vec3(0, -1.75, 0))),
-		lowerBody(Quad(glm::vec3(0, -3.5, 0))),
-		tail(Quad(glm::vec3(0, -5.25, 0)))
+		head(GameObject(glm::vec3())),
+		upperBody(GameObject(glm::vec3(1., 0, 0))),
+		lowerBody(GameObject(glm::vec3(2.2,0,0))),
+		tail(GameObject(glm::vec3(3.4, 0, 0.0f)))
 	{
 		speed = 0.002;
-		animationSpeed = 2;
+		animationSpeed = 3;
 		direction = glm::vec3(0, -1, 0);
 		this->pos = pos;
 
-		model = glm::rotate(glm::translate(model, pos), (glm::mediump_float)glm::radians(180.), glm::vec3(0, 0, 1));
-		texture = getTexture("Textures/toon_map.png");
-		//toPos = glm::rotate(toPos, (glm::mediump_float)glm::radians(90.), glm::vec3(0, 0, -1));
-		//toPos = glm::rotate(toPos, (glm::mediump_float)glm::radians(90.), glm::vec3(1, 0, 0));
+
+		model = glm::rotate(glm::translate(model, pos), (glm::mediump_float)glm::radians(90.), glm::vec3(1, 0, 0));
+		model = glm::rotate(model, (glm::mediump_float)glm::radians(90.), glm::vec3(0, 1, 0));
 		model = glm::scale(model, glm::vec3(SCALE_CONST, SCALE_CONST, SCALE_CONST));
 
-		//head.loadModel("Objects/head.obj");
-		//upperBody.loadModel("Objects/upperbody.obj");
-		//lowerBody.loadModel("Objects/lowerbody.obj");
-		//tail.loadModel("Objects/tail.obj");
+		head.loadModel("Objects/s1.obj");
+		upperBody.loadModel("Objects/s2.obj");
+		lowerBody.loadModel("Objects/s3.obj");
+		tail.loadModel("Objects/s4.obj");
 
 		head.setModel(model);
 		upperBody.setModel(glm::translate(model, upperBody.getPosition()));
 		lowerBody.setModel(glm::translate(model, lowerBody.getPosition()));
 		tail.setModel(glm::translate(model, tail.getPosition()));
+
+
+		color.diffuse = glm::vec4(0.01, .6, 1.0, 1.0);
+		color.ambient = glm::vec4(0.0, .3, .5, 1.0);
+		color.specConst = glm::vec4(0, 0, 0, 1.0);
+
+		head.setColor(color);
+		upperBody.setColor(color);
+		lowerBody.setColor(color);
+		tail.setColor(color);
 	}
 
 	void increaseAnimSpeed()
@@ -74,28 +76,23 @@ public:
 		float rotationAngle = angle * (glm::cross(this->direction, direction)[2] > 0 ? 0.01f : -0.01f);
 		this->direction = glm::rotateZ(this->direction, rotationAngle);
 		pos += this->direction * speed * SCALE_CONST;
-		model = glm::translate(glm::rotate(model, rotationAngle, glm::vec3(0, 0, 1)), -this->direction * speed);
+		model = glm::translate(glm::rotate(model, rotationAngle, glm::vec3(0, 0, 1)), glm::rotateZ(-this->direction, (glm::mediump_float)glm::radians(90.)) * speed);
 	}
 
 	void animate()
 	{
-		//glfwGetTime();
-		head.setModel(glm::rotate(model, (glm::mediump_float)glm::cos(glfwGetTime() * animationSpeed) / 10, glm::vec3(0, 0, -1)));
+		head.setModel(rotateAround(model, 0.5f * (upperBody.getPosition() - head.getPosition()), (glm::mediump_float)glm::cos(glfwGetTime() * animationSpeed) / 10, glm::vec3(0, 1, 0)));
 		upperBody.setModel(glm::translate(model, upperBody.getPosition()));
-		lowerBody.setModel(glm::rotate(glm::translate(upperBody.getModel(), lowerBody.getPosition() - upperBody.getPosition()), (glm::mediump_float)glm::cos(glfwGetTime() * animationSpeed) / 10, glm::vec3(0, 0, 1)));
-		tail.setModel(glm::rotate(glm::translate(lowerBody.getModel(), tail.getPosition() - lowerBody.getPosition()), (glm::mediump_float)glm::cos(glfwGetTime() * animationSpeed) / 10, glm::vec3(0, 0, 1)));
+		lowerBody.setModel(rotateAround(glm::translate(upperBody.getModel(), lowerBody.getPosition() - upperBody.getPosition()), 0.5f * (upperBody.getPosition() - lowerBody.getPosition()), (glm::mediump_float)glm::cos(glfwGetTime() * animationSpeed) / 10, glm::vec3(0, -1, 0)));
+		tail.setModel(rotateAround(glm::translate(lowerBody.getModel(), tail.getPosition() - lowerBody.getPosition()), 0.5f * (lowerBody.getPosition() - tail.getPosition()), (glm::mediump_float)glm::cos(glfwGetTime() * animationSpeed) / 10, glm::vec3(0, -1, 0)));
 	}
 
 	void draw(glm::vec3 viewPos, glm::mat4 cameraVp, glm::mat4 lightVp, glm::vec3 light, GLuint textureId)
 	{
-		//head.draw(viewPos, cameraVp, lightVp, light, textureId);
-		//upperBody.draw(viewPos, cameraVp, lightVp, light, textureId);
-		//lowerBody.draw(viewPos, cameraVp, lightVp, light, textureId);
-		//tail.draw(viewPos, cameraVp, lightVp, light, textureId);
-		head.draw(texture,cameraVp,head.getModel());
-		upperBody.draw(texture, cameraVp, upperBody.getModel());
-		lowerBody.draw(texture, cameraVp, lowerBody.getModel());
-		tail.draw(texture, cameraVp, tail.getModel());
+		head.draw(viewPos, cameraVp, lightVp, light, textureId);
+		upperBody.draw(viewPos, cameraVp, lightVp, light, textureId);
+		lowerBody.draw(viewPos, cameraVp, lightVp, light, textureId);
+		tail.draw(viewPos, cameraVp, lightVp, light, textureId);
 	}
 
 	bool hasReached(glm::vec3 playerPos)

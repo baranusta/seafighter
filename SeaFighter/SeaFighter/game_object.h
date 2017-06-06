@@ -76,6 +76,11 @@ public:
 		updateDataGPU();
 	}
 
+	void setColor(Color c)
+	{
+		color = c;
+	}
+
 	virtual ~GameObject()
 	{
 		glDeleteVertexArrays(1, &vao);
