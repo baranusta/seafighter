@@ -9,6 +9,7 @@
 #include "monster.h"
 #include "scene.h"
 #include "bullet.h"
+#include "text.h"
 
 #include <list>
 
@@ -36,6 +37,7 @@ private:
 	Player player;
 	PlayerKeyboardStates p_keyboardStates;
 
+	Text score;
 	Scene scene;
 	Sea sea;
 	Monster monster;
@@ -129,6 +131,7 @@ private:
 public:
 
 	Game(int width, int height) :
+		score("Holstein.DDS", "text_vs.glslx", "text_fs.glslx"),
 		sea(glm::vec3(0, 1.5, 0), "sea_vs.glslx", "sea_fs.glslx"),
 		scene(width, height),
 		player(glm::vec3(0, 0, 0)),
@@ -173,6 +176,7 @@ public:
 
 	void gameLoop(int frame)
 	{
+		char text[256];
 		if (frame == 0 || player.updatePosition())
 		{
 			updateCamera();
@@ -188,6 +192,8 @@ public:
 		}
 		
 		scene.renderScene(viewPos, proj * view);
+		sprintf(text, "%.2f score", glfwGetTime());
+		score.printText2D(text, 0.5, 0.5, 30);
 
 		for (std::list<Bullet*>::const_iterator iterator = bullets.begin(), end = bullets.end(); iterator != end;) {
 			Bullet* bullet = *iterator;
