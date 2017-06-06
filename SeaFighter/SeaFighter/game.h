@@ -6,6 +6,7 @@
 #include "sea.h"
 #include "island_factory.h"
 #include "player.h"
+#include "monster.h"
 #include "scene.h"
 #include "bullet.h"
 
@@ -37,6 +38,9 @@ private:
 
 	Scene scene;
 	Sea sea;
+	Monster monster;
+	bool isMonsterAlive;
+
 	std::vector<Island> islands;
 	std::list<Bullet*> bullets;
 
@@ -55,9 +59,14 @@ private:
 	void addAllObjectsToScene()
 	{
 		scene.addPlayer(&player, proj * view);
-		scene.addChild(&sea);
+		scene.addChildForRender(&sea);
+		scene.addChildForRender(&monster);
 		for (auto & island : islands)
-			scene.addChild(&island);
+		{
+			scene.addChildForRender(&island);
+			scene.addChildForShadow(&island);
+		}
+
 	}
 
 	std::function<void(int, double, double)> mouseClickFunction = [&](int button, double xpos, double ypos) {
@@ -123,6 +132,8 @@ public:
 		sea(glm::vec3(0, 1.5, 0), "sea_vs.glslx", "sea_fs.glslx"),
 		scene(width, height),
 		player(glm::vec3(0, 0, 0)),
+		monster(glm::vec3(0,3,0)),
+		isMonsterAlive(false),
 		width(width),
 		height(height)
 	{
@@ -170,6 +181,12 @@ public:
 		updatePlayerState();
 		player.updateSpeed();
 
+		if (isMonsterAlive)
+		{
+			monster.updateMonsterPosition(player.getPosition());
+			monster.animate();
+		}
+		
 		scene.renderScene(viewPos, proj * view);
 
 		for (std::list<Bullet*>::const_iterator iterator = bullets.begin(), end = bullets.end(); iterator != end;) {
@@ -186,6 +203,11 @@ public:
 				++iterator;
 			}
 		}
+	}
+
+	bool isGameOver()
+	{
+		return monster.hasReached(player.getPosition());
 	}
 
 	void updateLight()

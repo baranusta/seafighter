@@ -45,27 +45,7 @@ public:
 
 	void draw(glm::mat4 cameraVp)
 	{
-		printError("pfff0");
-		glBindVertexArray(vao);
-		printError("pfff1");
-		glBindBuffer(GL_ARRAY_BUFFER, vbo);
-		printError("pfff2");
-		glBindTexture(GL_TEXTURE_2D, texture);
-		printError("pfff3");
-
-		shaderDraw();
-
-		printError("pfff5");
-		glUniformMatrix4fv(0, 1, GL_FALSE, glm::value_ptr(cameraVp));
-		printError("pfff6");
-		glUniformMatrix4fv(1, 1, GL_FALSE, glm::value_ptr(glm::scale(model, scale)));
-		printError("pfff7");
-
-		printError("pfff8");
-		glDrawArrays(GL_TRIANGLES, 0, vertices.size());
-		printError("pfff9");
-		glBindTexture(GL_TEXTURE_2D, 0);
-		printError("pfff10");
+		Quad::draw(texture, cameraVp, glm::scale(model, scale));
 	}
 
 	void updatePosition(int times = 1)

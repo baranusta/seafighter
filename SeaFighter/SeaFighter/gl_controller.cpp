@@ -87,6 +87,11 @@ void GLController::startGame(std::function<void(void)> gameloop)
 	}
 }
 
+void GLController::endTheGame()
+{
+	glfwSetWindowShouldClose(window, 1);
+}
+
 void GLController::stop()
 {
 	glfwDestroyWindow(window);

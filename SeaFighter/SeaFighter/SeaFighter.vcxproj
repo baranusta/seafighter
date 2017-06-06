@@ -149,11 +149,12 @@
     <ClInclude Include="game.h" />
     <ClInclude Include="game_object.h" />
     <ClInclude Include="gl_controller.h" />
-    <ClInclude Include="quad.h" />
     <ClInclude Include="height_field.h" />
     <ClInclude Include="island.h" />
     <ClInclude Include="island_factory.h" />
+    <ClInclude Include="monster.h" />
     <ClInclude Include="player.h" />
+    <ClInclude Include="quad.h" />
     <ClInclude Include="scene.h" />
     <ClInclude Include="sea.h" />
     <ClInclude Include="shader_controller.h" />

@@ -8,7 +8,8 @@
 class Scene
 {
 private:
-	std::vector<GameObject*> children;
+	std::vector<GameObject*> ToRender;
+	std::vector<GameObject*> ToShadowRender;
 	GameObject* player;
 	glm::mat4 playerVp;
 
@@ -33,8 +34,10 @@ private:
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, depthTexture);
 
-		player->renderShadowMap(lightMVP);
-		for (auto& child : children)
+		if(player != nullptr)
+			player->renderShadowMap(lightMVP);
+
+		for (auto& child : ToShadowRender)
 			child->renderShadowMap(lightMVP);
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -43,7 +46,7 @@ private:
 	}
 
 public:
-	Scene(int screenWidth, int screenHeight): screenWidth(screenWidth), screenHeight(screenHeight)
+	Scene(int screenWidth, int screenHeight): screenWidth(screenWidth), screenHeight(screenHeight), player(nullptr)
 	{
 		glGenFramebuffers(1, &FramebufferName);
 		glBindFramebuffer(GL_FRAMEBUFFER, FramebufferName);
@@ -74,9 +77,14 @@ public:
 		glDeleteFramebuffers(1,&FramebufferName);
 	}
 
-	void addChild(GameObject* child)
+	void addChildForShadow(GameObject* child)
 	{
-		children.push_back(child);
+		ToShadowRender.push_back(child);
+	}
+
+	void addChildForRender(GameObject* child)
+	{
+		ToRender.push_back(child);
 	}
 
 	void addPlayer(GameObject* child, glm::mat4 cameraVp)
@@ -112,8 +120,10 @@ public:
 		Quad shadow;
 		shadow.draw();
 #else
-		player->draw(viewPos, playerVp, lightMVP, light, depthTexture);
-		for (auto& child : children)
+		if(player != nullptr)
+			player->draw(viewPos, playerVp, lightMVP, light, depthTexture);
+
+		for (auto& child : ToRender)
 			child->draw(viewPos, cameraVp, lightMVP, light, depthTexture);
 #endif
 	}

@@ -21,11 +21,23 @@ int main()
 			float frame = 0;
 			float time = 0;
 			GLController::getInstance().startGame([&]() {
-				if (frame == 0 || seaFighter.shouldLightMove())
+				if (!seaFighter.isGameOver())
 				{
-					seaFighter.updateLight();
+					if (frame == 0 || seaFighter.shouldLightMove())
+					{
+						seaFighter.updateLight();
+					}
+					seaFighter.gameLoop(frame);
 				}
-				seaFighter.gameLoop(frame);
+				else
+				{
+					GLController::getInstance().endTheGame();
+					std::cout << "                                                         \n";
+					std::cout << "                                                         \n";
+					std::cout << "                       GAME OVER                         \n";
+					std::cout << "                                                         \n";
+					std::cout << "                                                         \n";
+				}
 				frame++;
 			});
 
