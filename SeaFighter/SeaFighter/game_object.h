@@ -29,6 +29,10 @@ protected:
 
 	GLuint vao;
 	GLuint vbo;
+	glm::vec3 bottomLeft;
+	glm::vec3 bottomRight;
+	glm::vec3 topLeft;
+	glm::vec3 topRight;
 
 	glm::mat4 model;
 
@@ -154,6 +158,20 @@ public:
 				//+++++++++++++++++++++++++++++++++++
 			}
 		}
+			BBox bbox;
+			for (auto vertex : getVertices())
+			{
+				glm::vec3& v_pos = vertex.Position;
+				bbox.xMin = std::min(bbox.xMin, v_pos[0]);
+				bbox.xMax = std::max(bbox.xMax, v_pos[0]);
+				bbox.yMin = std::min(bbox.yMin, v_pos[1]);
+				bbox.yMax = std::max(bbox.yMax, v_pos[1]);
+			}
+			bottomLeft = glm::vec3(bbox.xMin, bbox.yMin, 0);
+			bottomRight = glm::vec3(bbox.xMax, bbox.yMin, 0);
+			topLeft = glm::vec3(bbox.xMin, bbox.yMax, 0);
+			topRight = glm::vec3(bbox.xMax, bbox.yMax, 0);
+
 		updateDataGPU();
 		return true;
 	}
@@ -166,6 +184,14 @@ public:
 	glm::mat4 getModel()
 	{
 		return model;
+	}
+
+	std::vector<glm::vec3> getPoints()
+	{
+		return { model * glm::vec4(bottomLeft,1.),
+			model * glm::vec4(bottomRight,1.),
+			model * glm::vec4(topLeft,1.),
+			model * glm::vec4(topRight,1.) };
 	}
 
 	virtual void setPosition(glm::vec3 position)

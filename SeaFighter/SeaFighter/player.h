@@ -35,7 +35,13 @@ public:
 
 	bool loadModel(std::string boat_name, std::string gun_name)
 	{
-		return boat.loadModel(boat_name) && gun.loadModel(gun_name);
+		bool result = boat.loadModel(boat_name) && gun.loadModel(gun_name);
+		return result;
+	}
+
+	virtual std::vector<glm::vec3> getPoints()
+	{
+		return boat.getPoints();
 	}
 
 	void rotate(float angle)
@@ -43,6 +49,7 @@ public:
 		float rad = glm::radians(angle);
 		rotationAngle += rad;
 		direction = glm::rotate(direction, -rad, glm::vec3(0, 0, 1));
+		//model = glm::rotate(model, -rad, glm::vec3(0, 0, 1));
 	}
 
 	void reset()

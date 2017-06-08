@@ -234,7 +234,7 @@ public:
 		sea.setSize(sea_xSize, sea_ySize, sea_xSize * 20, sea_ySize * 20);
 
 		IslandFactory i_factory(11, 11, 0.1, 7, 3);
-		islands = i_factory.getIslands(15);
+		islands = i_factory.getIslands(1);
 
 		MineFactory m_factory(BBox(-6,6,-6,6));
 		mines = m_factory.generateMines(2, islands);
@@ -306,7 +306,7 @@ public:
 			i++;
 		}
 
-		if (!aliveMineCount || glfwGetTime()>40)
+		if (!aliveMineCount || glfwGetTime()>80)
 		{
 			player.reset();
 			isMonsterAlive = true;
@@ -315,6 +315,10 @@ public:
 			for (auto& island : islands)
 			{
 				island.setVisibility(false);
+			}
+			for (auto& mine : mines)
+			{
+				mine->setVisibility(false);
 			}
 		}
 		else
@@ -343,9 +347,33 @@ public:
 		}
 	}
 
+	bool isPlayerCollided()
+	{
+		auto& points= player.getPoints();
+		for (auto& island : islands)
+		{
+			for (auto bbox : island.getBBox())
+			{
+				if (bbox.isColliding(points))
+					return true;
+			}
+		}
+		int i = 0;
+		for (auto& mine : mines)
+		{
+			if (mine->isExist() && i!= mines.size())
+			{
+				if (mine->getBBox().isColliding(points))
+					return true;
+			}
+			i++;
+		}
+		return false;
+	}
+
 	bool isGameOver()
 	{
-		return isMonsterAlive && monster.hasReached(player.getPosition());
+		return isPlayerCollided() || isMonsterAlive && monster.hasReached(player.getPosition());
 	}
 
 	void updateLight()
