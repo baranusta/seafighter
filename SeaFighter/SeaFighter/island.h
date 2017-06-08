@@ -29,9 +29,9 @@ public:
 
 		// mark the current 
 		bbox.xMin = std::min(bbox.xMin, m_startX + gridSize * x);
-		bbox.xMax = std::max(bbox.xMax, m_startX + gridSize * x);
+		bbox.xMax = std::max(bbox.xMax, m_startX + gridSize * (x + 1));
 		bbox.yMin = std::min(bbox.yMin, m_startY + gridSize * y);
-		bbox.yMax = std::max(bbox.yMax, m_startY + gridSize * y);
+		bbox.yMax = std::max(bbox.yMax, m_startY + gridSize * (y + 1));
 		visited[x][y] = true;
 
 		// recursively mark the neighbors
