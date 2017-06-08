@@ -60,30 +60,30 @@ public:
 		//printHeightMap();
 	}
 
-	BBox getBBox()
+	std::vector<BBox> getBBox()
 	{
 		return bBox;
 	}
 
-	void buildIsland(double gridSize)
-	{
-		pos = glm::vec3(m_startX + m_heightMap[0].size() / 2 * gridSize, m_startY + m_heightMap.size() / 2 * gridSize, -0.2);
-		Surface surface = generateSurface(m_startX, m_startY, gridSize, gridSize, m_heightMap[0].size(), m_heightMap.size());
-		indices = surface.indices;
-		vertices = surface.vertices;
-		
-		surface.clean();
+	//void buildIsland(double gridSize)
+	//{
+	//	pos = glm::vec3(m_startX + m_heightMap[0].size() / 2 * gridSize, m_startY + m_heightMap.size() / 2 * gridSize, -0.2);
+	//	Surface surface = generateSurface(m_startX, m_startY, gridSize, gridSize, m_heightMap[0].size(), m_heightMap.size());
+	//	indices = surface.indices;
+	//	vertices = surface.vertices;
+	//	
+	//	surface.clean();
 
-		setZPositions();
-		bBox.xMin = m_startX;
-		bBox.xMax = m_startX + gridSize * m_heightMap[0].size();
-		bBox.yMin = m_startY;
-		bBox.yMax = m_startY + gridSize * m_heightMap.size();
-		m_heightMap.clear();
+	//	setZPositions();
+	//	bBox.xMin = m_startX;
+	//	bBox.xMax = m_startX + gridSize * m_heightMap[0].size();
+	//	bBox.yMin = m_startY;
+	//	bBox.yMax = m_startY + gridSize * m_heightMap.size();
+	//	m_heightMap.clear();
 
-		setNormals();
-		updateDataGPU();
-	}
+	//	setNormals();
+	//	updateDataGPU();
+	//}
 
 	void buildIsland2(double gridSize)
 	{
@@ -186,8 +186,8 @@ protected:
 	//these are the start positions in real world
 	float m_startX, m_startY;
 	std::vector<std::vector<double>> m_heightMap;
-	BBox bBox;
-	//std::vector<BBox> bBox;
+	//BBox bBox;
+	std::vector<BBox> bBox;
 private:
 	std::vector<unsigned int> indices;
 	GLuint elementbuffer;

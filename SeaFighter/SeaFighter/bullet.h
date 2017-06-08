@@ -24,10 +24,10 @@ private:
 		float closestDistance = std::numeric_limits<float>::max();
 		for (auto& island : islands)
 		{
-			for (auto & bBox : island.getBBox())
+			for (auto & bBox : islands)
 			{
 				//closestDistance = std::min(closestDistance, getIntersectCubeT(island.getBBox()));
-				closestDistance = std::min(closestDistance, getIntersectCubeT(bBox));
+				//closestDistance = std::min(closestDistance, getIntersectCubeT(bBox));
 			}
 		}
 		closestDistance += BULLET_SPEED;

@@ -167,8 +167,8 @@ public:
 		oldPosX = oldPosY = 0.0;
 		IslandFactory factory(9, 9, 0.1, 7, 3);
 		islands = factory.getIslands(10);
-		bool boleanMap[9][9];
-		memset(boleanMap, 0, sizeof(boleanMap));
+		//bool boleanMap[9][9];
+		//memset(boleanMap, 0, sizeof(boleanMap));
 		//valuesHeightMap = factory.getHeightMap();
 		//valuesHeightMap = factory.getHeightMap();
 		
@@ -238,8 +238,11 @@ public:
 	}
 
 	bool isGameOver()
-	{
-		return monster.hasReached(player.getPosition()) | obtainPlayerMatrix(player.getPosition());
+	{	
+		
+		return monster.hasReached(player.getPosition())
+			| obtainPlayerMatrix(player.getPosition())
+			| checkForBoatCollitionIsland(player.getPosition());
 	}
 
 	void updateLight()
@@ -253,58 +256,82 @@ public:
 		return isLightMoving;
 	}
 
-#define unitrid 0.1
-	
-	void isBoatCollideIsland(glm::vec3 playerPosition, std::vector<std::vector<double>> map, std::vector<Island> islands)
-	{
-		bool visited[5][5];
-		memset(visited, 0, sizeof(visited));
 
-		int count = 0;
-		for (int i = 0; i < 5; ++i) {
-			for (int j = 0; j < 5; ++j) {
-				if (map[i][j] && !visited[i][j]) // If a cell with value 1 is not
-				{							// visited yet, then new island found
-					//DFS(map, i, j, visited);     // Visit all cells in this island.
-					++count;                   // and increment island count
+	bool checkForBoatCollitionIsland(glm::vec3 boatPosition) {
+		
+		std::vector<BBox> currentIslandBox;
+		for (int i = 0; i < islands.size(); i++) {
+			//Obtain each of the bounding boxes
+			currentIslandBox = islands[i].getBBox();
+			
+			float x_min, x_max, y_min, y_max;
+
+			for (int j = 0; j < currentIslandBox.size(); j++) {
+				x_min = currentIslandBox[j].xMin;
+				x_max = currentIslandBox[j].xMax;
+				y_min = currentIslandBox[j].yMin;
+				y_max = currentIslandBox[j].yMax;
+
+				if (boatPosition.x + 0.1 > x_min &
+					boatPosition.x < x_max + 0.1 &
+					boatPosition.y + 0.1 > y_min &
+					boatPosition.y < y_max + 0.1) {
+					return true;
+				}
+				else {
+					return false;
 				}
 			}
+		
 		}
 
 	}
 
 
-
-#define ROW 5 //Must be the size of the all hight map of boleans
-#define COL 5
-
-	// A function to check if a given cell (row, col) can be included in DFS
-	int isSafe(int M[][COL], int row, int col, bool visited[][COL])
-	{
-		// row number is in range, column number is in range and value is 1 
-		// and not yet visited
-		return (row >= 0) && (row < ROW) &&
-			(col >= 0) && (col < COL) &&
-			(M[row][col] && !visited[row][col]);
-	}
-
-	// A utility function to do DFS for a 2D boolean matrix. It only considers
-	// the 8 neighbours as adjacent vertices
-	void DFS(int M[][COL], int row, int col, bool visited[][COL])
-	{
-		// These arrays are used to get row and column numbers of 8 neighbours 
-		// of a given cell
-		static int rowNbr[] = { -1, -1, -1,  0, 0,  1, 1, 1 };
-		static int colNbr[] = { -1,  0,  1, -1, 1, -1, 0, 1 };
-
-		// Mark this cell as visited
-		visited[row][col] = true;
-
-		// Recur for all connected neighbours
-		for (int k = 0; k < 8; ++k)
-			if (isSafe(M, row + rowNbr[k], col + colNbr[k], visited))
-				DFS(M, row + rowNbr[k], col + colNbr[k], visited);
-	}
+//#define unitrid 0.1
+//	
+//	void isBoatCollideIsland(glm::vec3 playerPosition, std::vector<std::vector<double>> map, std::vector<Island> islands)
+//	{
+//		bool visited[5][5];
+//		memset(visited, 0, sizeof(visited));
+//
+//		int count = 0;
+//		for (int i = 0; i < 5; ++i) {
+//			for (int j = 0; j < 5; ++j) {
+//				if (map[i][j] && !visited[i][j]) 
+//				{							
+//					
+//					++count;                 
+//				}
+//			}
+//		}
+//
+//	}
+//
+//#define ROW 5
+//#define COL 5
+//
+//	int isSafe(int M[][COL], int row, int col, bool visited[][COL])
+//	{
+//
+//		return (row >= 0) && (row < ROW) &&
+//			(col >= 0) && (col < COL) &&
+//			(M[row][col] && !visited[row][col]);
+//	}
+//
+//
+//	void DFS(int M[][COL], int row, int col, bool visited[][COL])
+//	{
+//
+//		static int rowNbr[] = { -1, -1, -1,  0, 0,  1, 1, 1 };
+//		static int colNbr[] = { -1,  0,  1, -1, 1, -1, 0, 1 };
+//
+//		visited[row][col] = true;
+//
+//		for (int k = 0; k < 8; ++k)
+//			if (isSafe(M, row + rowNbr[k], col + colNbr[k], visited))
+//				DFS(M, row + rowNbr[k], col + colNbr[k], visited);
+//	}
 
 
 
