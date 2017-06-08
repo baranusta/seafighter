@@ -102,6 +102,9 @@ public:
 
 	void draw(glm::vec3 viewPos, glm::mat4 cameraVp, glm::mat4 lightVp, glm::vec3 light, GLuint textureId)
 	{
+		if (!isVisible)
+			return;
+
 		head.draw(viewPos, cameraVp, lightVp, light, textureId);
 		upperBody.draw(viewPos, cameraVp, lightVp, light, textureId);
 		lowerBody.draw(viewPos, cameraVp, lightVp, light, textureId);

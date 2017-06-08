@@ -45,6 +45,14 @@ public:
 		direction = glm::rotate(direction, -rad, glm::vec3(0, 0, 1));
 	}
 
+	void reset()
+	{
+		setPosition(glm::vec3(0, 0, 0));
+		direction = glm::rotate(direction, -rotationAngle, glm::vec3(0, 0, 1));
+		rotationAngle = 0;
+		model = glm::mat4();
+	}
+
 	float getRotation()
 	{
 		return rotationAngle;

@@ -153,6 +153,8 @@
     <ClInclude Include="island.h" />
     <ClInclude Include="island_factory.h" />
     <ClInclude Include="mesh_controller.h" />
+    <ClInclude Include="mine.h" />
+    <ClInclude Include="mine_factory.h" />
     <ClInclude Include="monster.h" />
     <ClInclude Include="player.h" />
     <ClInclude Include="quad.h" />

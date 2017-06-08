@@ -1,7 +1,6 @@
 #pragma once
 #include "game_object.h"
 #include "height_field.h"
-#include <algorithm>
 
 #include <iomanip>
 
@@ -89,10 +88,6 @@ public:
 				if (m_heightMap[i][j] > MIN_HEIGHT_ISLAND_BBOX && !visited[i][j])
 				{
 					BBox bbox;
-					bbox.xMin = std::numeric_limits<float>::max();
-					bbox.yMin = std::numeric_limits<float>::max();
-					bbox.xMax = std::numeric_limits<float>::min();
-					bbox.yMax = std::numeric_limits<float>::min();
 					depth_first_search(i, j, gridSize, m_heightMap.size(), m_heightMap[0].size(), bbox, visited);
 					bBox.push_back(bbox);
 				}
@@ -100,20 +95,17 @@ public:
 			}
 		}
 		
-		//bBox.xMin = m_startX;
-		//bBox.xMax = m_startX + gridSize * m_heightMap[0].size();
-		//bBox.yMin = m_startY;
-		//bBox.yMax = m_startY + gridSize * m_heightMap.size();
 		m_heightMap.clear();
 
 		setNormals();
 		updateDataGPU();
 	}
 
-
 	void draw(glm::vec3 viewPos, glm::mat4 cameraVp, glm::mat4 lightVp, glm::vec3 light, GLuint textureId)
 	{
 		//maybe first check whether it should be drawn
+		if (!isVisible)
+			return;
 
 		passBasicsToGPU(shaderDraw, cameraVp, viewPos, light, lightVp, textureId);
 
@@ -124,6 +116,9 @@ public:
 
 	void renderShadowMap(glm::mat4 lightVp)
 	{
+		if (!isVisible)
+			return;
+
 		glBindVertexArray(vao);
 		glBindBuffer(GL_ARRAY_BUFFER, vbo);
 		shaderShadow();

@@ -5,6 +5,7 @@
 #include "game_object.h"
 #include "sea.h"
 #include "island_factory.h"
+#include "mine_factory.h"
 #include "player.h"
 #include "monster.h"
 #include "scene.h"
@@ -46,6 +47,7 @@ private:
 	bool isMonsterAlive;
 
 	std::vector<Island> islands;
+	std::vector<Mine*> mines;
 	std::list<Bullet*> bullets;
 
 	glm::vec3 lightPos;
@@ -79,13 +81,20 @@ private:
 			scene.addChildForShadow(&island);
 		}
 
+		for (auto & mine : mines)
+		{
+			scene.addChildForRender(mine);
+		}
+
 	}
 
 	std::function<void(int, double, double)> mouseClickFunction = [&](int button, double xpos, double ypos) {
 		if (button == GLFW_MOUSE_BUTTON_LEFT)
 		{
 			glm::vec3 direction = player.getGunDirection();
-			bullets.push_back(new Bullet(player.getPosition(), direction, islands));
+			Bullet* bullet = new Bullet(player.getPosition(), direction, islands);
+			bullet->isHittingAnyMine(mines);
+			bullets.push_back(bullet);
 		}
 	};
 
@@ -224,11 +233,15 @@ public:
 
 		sea.setSize(sea_xSize, sea_ySize, sea_xSize * 20, sea_ySize * 20);
 
-		IslandFactory factory(11, 11, 0.1, 7, 3);
-		islands = factory.getIslands(15);
+		IslandFactory i_factory(11, 11, 0.1, 7, 3);
+		islands = i_factory.getIslands(15);
+
+		MineFactory m_factory(BBox(-6,6,-6,6));
+		mines = m_factory.generateMines(2, islands);
 
 
 		player.loadModel("Objects/boat17.obj", "Objects/gun3.obj");
+		monster.setVisibility(false);
 
 
 		lightPos = glm::vec3(-5.f, 10.0f, 3.f);
@@ -256,6 +269,8 @@ public:
 	{
 		for (auto bullet : bullets)
 			delete bullet;
+		for (auto mine : mines)
+			delete mine;
 	}
 
 
@@ -268,6 +283,7 @@ public:
 
 		updatePlayerState();
 		player.updateSpeed();
+		
 
 		if (isMonsterAlive)
 		{
@@ -281,7 +297,35 @@ public:
 		scene.updateViewArea(player.getPosition());
 		scene.renderScene(viewPos, proj * view);
 
-		score.printText2D(std::to_string(glfwGetTime()) + " score", 0.5, 0.5, 30);
+		int aliveMineCount = 0;
+		int i = 0;
+		for (auto& mine : mines)
+		{
+			if (mine->isExist() && i != mines.size() - 1)
+				aliveMineCount++;
+			i++;
+		}
+
+		if (!aliveMineCount || glfwGetTime()>40)
+		{
+			player.reset();
+			isMonsterAlive = true;
+
+			monster.setVisibility(true);
+			for (auto& island : islands)
+			{
+				island.setVisibility(false);
+			}
+		}
+		else
+		{
+			for (auto& mine : mines)
+			{
+				mine->update();
+			}
+		}
+
+		score.printText2D("Remaining Mine count is " + std::to_string(aliveMineCount), 0.5, 0.5, 30);
 
 		for (std::list<Bullet*>::const_iterator iterator = bullets.begin(), end = bullets.end(); iterator != end;) {
 			Bullet* bullet = *iterator;

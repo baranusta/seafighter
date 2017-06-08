@@ -2,6 +2,7 @@
 #include <math.h>
 
 #include "quad.h"
+#include "mine.h"
 
 #define BULLET_SPEED 0.016f
 
@@ -21,7 +22,7 @@ private:
 	{
 		std::list<BBox>::iterator it;
 
-		float closestDistance = std::numeric_limits<float>::max();
+		float closestDistance = 1000;
 		for (auto& island : islands)
 		{
 			for (auto& bBox : island.getBBox()) {
@@ -109,6 +110,30 @@ public:
 		if (tmax >= tmin)
 			return tmax;
 		return INFINITY;
+	}
+
+	void isHittingAnyMine(std::vector<Mine*>& mines)
+	{
+		float closestDistance = 1000;
+		int i =0, hittingMine = -1;
+		for (auto& mine : mines) {
+			if (!mine->isExist())
+				continue;
+
+			float distance = getIntersectCubeT(mine->getBBox());
+			if (closestDistance > distance)
+			{
+				closestDistance = distance;
+				hittingMine = i;
+			}
+			i++;
+		}
+		if (closestDistance < 1000)
+		{
+
+			mines[hittingMine]->setLifeTime(closestDistance / BULLET_SPEED);
+			lifeStep = std::min(lifeStep, (int)(closestDistance / BULLET_SPEED));
+		}
 	}
 
 	bool shouldRemove()

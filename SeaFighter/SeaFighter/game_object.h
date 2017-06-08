@@ -25,6 +25,8 @@ protected:
 	ShaderController shaderDraw;
 	ShaderController shaderShadow;
 
+	bool isVisible;
+
 	GLuint vao;
 	GLuint vbo;
 
@@ -60,6 +62,9 @@ protected:
 public:
 	GameObject()
 	{
+		color.diffuse = glm::vec4(0.4, .25, .16, 1.0);
+		color.ambient = glm::vec4(0.3, .2, .1, 1.0);
+		color.specConst = glm::vec4(0, 0, 0, 1.0);
 	}
 
 	GameObject(glm::vec3 position, std::string vShader = "def_vshader.glslx", std::string fShader= "def_fshader.glslx") 
@@ -81,7 +86,7 @@ public:
 		return vertices;
 	}
 
-	void setVertices(std::vector<Vertex> vertices)
+	virtual void setVertices(std::vector<Vertex> vertices)
 	{
 		this->vertices = vertices;
 		updateDataGPU();
@@ -163,9 +168,19 @@ public:
 		return model;
 	}
 
+	virtual void setPosition(glm::vec3 position)
+	{
+		this->pos = position;
+	}
+
 	void rotate(float angle, glm::vec3 axis)
 	{
 		model = glm::rotate(model, angle, axis);
+	}
+
+	void setVisibility(bool visibility)
+	{
+		isVisible = visibility;
 	}
 
 	void passBasicsToGPU(ShaderController& shader,glm::mat4 vp, glm::vec3 viewPos, glm::vec3 light, glm::mat4 lightVp, GLuint textureId)
@@ -203,6 +218,9 @@ public:
 
 	virtual void draw(glm::vec3 viewPos,glm::mat4 cameraVp, glm::mat4 lightVp, glm::vec3 light,  GLuint textureId)
 	{
+		if (!isVisible)
+			return;
+
 		passBasicsToGPU(shaderDraw, cameraVp, viewPos, light, lightVp, textureId);
 		//glActiveTexture(GL_TEXTURE0);
 		//glBindTexture(GL_TEXTURE_2D, texToon);
@@ -217,6 +235,9 @@ public:
 
 	virtual void renderShadowMap(glm::mat4 lightVp)
 	{
+		if (!isVisible)
+			return;
+
 		printError("yo5");
 		glBindVertexArray(vao);
 		glBindBuffer(GL_ARRAY_BUFFER, vbo);
@@ -235,5 +256,6 @@ public:
 		printError("ya");
 
 		printError("Game object shadow end");
+		glBindVertexArray(0);
 	}
 };
