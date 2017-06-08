@@ -2,6 +2,8 @@
 
 #include "game_object.h"
 #include "quad.h"
+#include "mesh_controller.h"
+
 #include <math.h>
 
 #define SCALE_CONST 0.8f
@@ -14,6 +16,8 @@ private:
 	GameObject upperBody;
 	GameObject lowerBody;
 	GameObject tail;
+
+	MeshController meshController;
 
 	float animationSpeed;
 
@@ -42,6 +46,8 @@ public:
 		lowerBody.loadModel("Objects/s3.obj");
 		tail.loadModel("Objects/s4.obj");
 
+		meshController = MeshController(head.getVertices());
+
 		head.setModel(model);
 		upperBody.setModel(glm::translate(model, upperBody.getPosition()));
 		lowerBody.setModel(glm::translate(model, lowerBody.getPosition()));
@@ -56,6 +62,13 @@ public:
 		upperBody.setColor(color);
 		lowerBody.setColor(color);
 		tail.setColor(color);
+	}
+
+	void simplifyHead()
+	{
+		meshController.simplifyMesh(10,10, 10, [&](std::vector<Vertex>& vertices) {
+			head.setVertices(vertices);
+		});
 	}
 
 	void increaseAnimSpeed()

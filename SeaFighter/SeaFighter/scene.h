@@ -23,6 +23,14 @@ private:
 	int shadowWidth = 1024, shadowHeight = 1024;
 	int screenWidth, screenHeight;
 
+
+	glm::mat4 depthProjectionMatrix;
+	glm::mat4 depthViewMatrix;
+	glm::mat4 depthViewInvMatrix;
+	glm::mat4 depthModelMatrix;
+
+	bool renderVpCam = true;
+
 	void renderShadow()
 	{
 		glCullFace(GL_FRONT);
@@ -70,6 +78,8 @@ public:
 		// switch back to window-system-provided framebuffer
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+		depthProjectionMatrix = glm::ortho<float>(-10.f,10.f, -10.0f, 10.f, 1., 25.);
+		depthModelMatrix = glm::mat4(1.0);
 	}
 
 	~Scene()
@@ -98,12 +108,34 @@ public:
 		if (this->light != light)
 		{
 			this->light = light;
+			depthViewMatrix = glm::lookAt(light, glm::vec3(0, 0, 0), glm::vec3(0, 0, 1));
+			lightMVP = depthProjectionMatrix * depthViewMatrix * depthModelMatrix;
+		} 
+	}
+	glm::vec3 getPos(glm::vec3 pos)
+	{
+		glm::vec4 screenPos = depthViewMatrix * glm::vec4(pos, 1);
+		return screenPos / screenPos[3];
+	}
 
-			glm::mat4 depthProjectionMatrix = glm::ortho<float>(-10.0f, 10.0f, -10.0f, 10.f, 1., 25.);
-			glm::mat4 depthViewMatrix = glm::lookAt(light, glm::vec3(0, 0, 0), glm::vec3(0, 0, 1));
-			glm::mat4 depthModelMatrix = glm::mat4(1.0);
+	void updateViewArea()
+	{
+		glm::vec3 shallowLight = light;
+		shallowLight[2] = 0;
+		shallowLight = glm::normalize(shallowLight);
+		glm::vec3 cosVec = glm::rotateZ(shallowLight, glm::radians(90.f));
+		if (player != nullptr && player->getPosition().length!= 0)
+		{
+			float lengthX = glm::dot(cosVec, player->getPosition());
+			float lengthY = glm::dot(shallowLight, player->getPosition()) / 5;
+			depthProjectionMatrix = glm::ortho<float>(lengthX - 3, lengthX + 3, -1 - lengthY, +1 - lengthY, 1., 25.);
 			lightMVP = depthProjectionMatrix * depthViewMatrix * depthModelMatrix;
 		}
+	}
+
+	void changeRenderedCam()
+	{
+		renderVpCam = !renderVpCam;
 	}
 
 	void renderScene(glm::vec3 viewPos, glm::mat4 cameraVp)
@@ -121,10 +153,10 @@ public:
 		shadow.draw();
 #else
 		if(player != nullptr)
-			player->draw(viewPos, playerVp, lightMVP, light, depthTexture);
+			player->draw(viewPos, renderVpCam == true ? playerVp : cameraVp, lightMVP, light, depthTexture);
 
 		for (auto& child : ToRender)
-			child->draw(viewPos, cameraVp, lightMVP, light, depthTexture);
+			child->draw(viewPos, renderVpCam == true ? cameraVp: lightMVP, lightMVP, light, depthTexture);
 #endif
 	}
 };

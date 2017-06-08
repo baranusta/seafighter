@@ -7,13 +7,21 @@
 #include "stb_image.h"
 
 
-glm::vec4 getWorldCoordinate(glm::mat4 matrix, int xPos, int yPos, int width, int height)
+glm::vec4 getWorldCoordinate(glm::mat4 matrix, int xPos, int yPos, int width, int height, float z = 0.94975)
 {
-	glm::vec4 screenPos(2 * xPos / (float)width - 1, 1 - 2 * yPos / (float)height, 0.94975, 1.0);
+	glm::vec4 screenPos(2 * xPos / (float)width - 1, 1 - 2 * yPos / (float)height, z, 1.0);
 	glm::vec4 worldPos = matrix * screenPos;
 	worldPos /= worldPos[3];
-	std::cout << std::setw(8) << std::setprecision(3) << screenPos[0] << " " << screenPos[1] << " worldPos: " << worldPos[0] << " " << worldPos[1] << std::endl;
+	//std::cout << std::setw(8) << std::setprecision(3) << screenPos[0] << " " << screenPos[1] << " worldPos: " << worldPos[0] << " " << worldPos[1] << std::endl;
 	return worldPos;
+}
+
+float getOriginsZ(glm::mat4 matrix)
+{
+	glm::vec4 worldPosition(0, 0, 0, 1);
+	glm::vec4 screenPos = matrix * worldPosition;
+	screenPos /= screenPos[3];
+	return screenPos[2];
 }
 
 GLuint getTexture(std::string textureName)

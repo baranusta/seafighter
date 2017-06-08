@@ -76,6 +76,17 @@ public:
 		updateDataGPU();
 	}
 
+	std::vector<Vertex> getVertices()
+	{
+		return vertices;
+	}
+
+	void setVertices(std::vector<Vertex> vertices)
+	{
+		this->vertices = vertices;
+		updateDataGPU();
+	}
+
 	void setColor(Color c)
 	{
 		color = c;

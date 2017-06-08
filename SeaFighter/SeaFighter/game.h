@@ -18,7 +18,8 @@
 #define TINYOBJLOADER_IMPLEMENTATION
 #include "tiny_obj_loader.h"
 
-extern glm::vec4 getWorldCoordinate(glm::mat4 matrix, int xPos, int yPos, int width, int height);
+extern glm::vec4 getWorldCoordinate(glm::mat4 matrix, int xPos, int yPos, int width, int height, float z = 0.94975);
+float getOriginsZ(glm::mat4 matrix);
 
 class Game
 {
@@ -57,17 +58,25 @@ private:
 	bool isLightMoving = false;
 	int width, height;
 
+	float originsZ;
+	glm::vec3 visibleTopLeft;
+	glm::vec3 visibleTopRight;
+	glm::vec3 visibleBottomLeft;
+	glm::vec3 visibleBottomRight;
+
+	BBox gameArea;
+
 
 	void addAllObjectsToScene()
 	{
-		scene.addPlayer(&player, proj * view);
-		scene.addChildForRender(&sea);
+		//scene.addPlayer(&player, proj * view);
+		//scene.addChildForRender(&sea);
 		scene.addChildForRender(&monster);
-		for (auto & island : islands)
-		{
-			scene.addChildForRender(&island);
-			scene.addChildForShadow(&island);
-		}
+		//for (auto & island : islands)
+		//{
+		//	scene.addChildForRender(&island);
+		//	scene.addChildForShadow(&island);
+		//}
 
 	}
 
@@ -80,7 +89,7 @@ private:
 	};
 
 	std::function<void(double, double)> mouseTraceFunction = [&](double xPos, double yPos) {
-		glm::vec4 worldPos = getWorldCoordinate(inverseInitialMvp, xPos, yPos, width, height);
+		glm::vec3 worldPos = getWorldCoordinate(inverseInitialMvp, xPos, yPos, width, height);
 		player.rotateGunTo(worldPos);
 	};
 
@@ -107,9 +116,19 @@ private:
 			if (isPressed)
 				isLightMoving = !isLightMoving;
 			break;
+		case GLFW_KEY_Q:
+			scene.changeRenderedCam();
+				break;
+		case GLFW_KEY_X:
+			if (!isStarted)
+			{
+				monster.simplifyHead();
+				isStarted = true; 
+			}
+			break;
 		}
 	};
-
+	bool isStarted = false;
 	void updatePlayerState()
 	{
 		if (p_keyboardStates.isAccelerating)
@@ -128,19 +147,33 @@ private:
 		viewPos = glm::rotate(cameraOffset, (glm::mediump_float)player.getRotation(), glm::vec3(0, 0, -1)) + player.getPosition();
 		view = glm::lookAt(viewPos, player.getPosition(), glm::vec3(0.0f, 0.0f, 1.0f));
 	}
+
+
+	void updateVisibleAreas(glm::mat4 Vp)
+	{
+		visibleTopLeft = getWorldCoordinate(Vp, 0, 0, width, height, originsZ);
+		visibleTopRight = getWorldCoordinate(Vp, width - 1,0 , width, height, originsZ);
+		visibleBottomLeft = getWorldCoordinate(Vp, 0, height - 1, width, height, originsZ);
+		visibleBottomRight = getWorldCoordinate(Vp, width - 1, height - 1, width, height, originsZ);
+	}
+
 public:
 
 	Game(int width, int height) :
+		gameArea(BBox(-10.,+10.,-10.,+10.)),
 		score("Holstein.DDS"),
-		sea(glm::vec3(0, 1.5, 0), "sea_vs.glslx", "sea_fs.glslx"),
+		sea(glm::vec3((gameArea.xMax - gameArea.xMin)/2, (gameArea.yMax - gameArea.yMin) / 2, 0), "sea_vs.glslx", "sea_fs.glslx"),
 		scene(width, height),
 		player(glm::vec3(0, 0, 0)),
-		monster(glm::vec3(0,3,-0.1)),
+		monster(glm::vec3(0,0,-0.1)),
 		isMonsterAlive(true),
 		width(width),
 		height(height)
 	{
-		sea.setSize(20, 20, 500, 500);
+		int sea_xSize = gameArea.xMax - gameArea.xMin;
+		int sea_ySize = gameArea.yMax - gameArea.yMin;
+
+		sea.setSize(sea_xSize, sea_ySize, sea_xSize * 20, sea_ySize * 20);
 
 		IslandFactory factory(9, 9, 0.1, 7, 3);
 		islands = factory.getIslands(10);
@@ -151,16 +184,19 @@ public:
 
 		lightPos = glm::vec3(-5.f, 10.0f, 3.f);
 
-		cameraOffset = glm::vec3(.0f, -2.0f, 2.05f);
+		cameraOffset = glm::vec3(.0f, -1.0f, 3.05f);
 		viewPos = cameraOffset;
 		view = glm::lookAt(viewPos, player.getPosition(), glm::vec3(0.0f, 0.0f, 1.0f));
 		proj = glm::perspective(45.0f, width / static_cast<float>(height), 0.1f, 30.0f);
+
+		originsZ = getOriginsZ(proj * view);
 
 		inverseInitialMvp = glm::inverse(proj * view);
 
 		player.setModel(glm::scale(glm::mat4(), glm::vec3(0.08, 0.08, 0.08)));
 
 		addAllObjectsToScene();
+		scene.setLight(lightPos);
 
 		GLController::getInstance().setKeyPressedFunction(keyFunction);
 		GLController::getInstance().setMouseTraceFunction(mouseTraceFunction);
@@ -186,10 +222,12 @@ public:
 
 		if (isMonsterAlive)
 		{
-			monster.updateMonsterPosition(player.getPosition());
+			//monster.updateMonsterPosition(player.getPosition());
 			monster.animate();
 		}
-		
+
+		updateVisibleAreas(proj * view);
+		scene.updateViewArea();
 		scene.renderScene(viewPos, proj * view);
 
 		score.printText2D(std::to_string(glfwGetTime()) + " score", 0.5, 0.5, 30);
@@ -212,7 +250,7 @@ public:
 
 	bool isGameOver()
 	{
-		return monster.hasReached(player.getPosition());
+		return false;// monster.hasReached(player.getPosition());
 	}
 
 	void updateLight()
