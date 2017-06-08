@@ -53,7 +53,7 @@ public:
 	void updateSpeed()
 	{
 		float waterForce = 0.000000002f;
-		if(speed<0.0005)
+		if(speed<0.005)
 			speed += acceleration - waterForce;
 		if (speed < 0)
 			speed = 0;
@@ -67,6 +67,12 @@ public:
 		pos += direction * speed;
 		model = glm::translate(model, direction * speed);
 		return pos != oldPos;
+	}
+
+	void updatePosition(glm::vec3 pos)
+	{
+		this->pos += pos;
+		model = glm::translate(model, pos);
 	}
 
 	void accelerate()

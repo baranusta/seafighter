@@ -27,6 +27,8 @@ private:
 			std::swap(min, middle);
 		if (middle > max)
 			std::swap(middle, max);
+		if (min > middle)
+			std::swap(min, middle);
 	}
 
 	void addToCell(std::unordered_map<int, std::pair<int, Vertex>>& positions, int cell, const Vertex & vert)
@@ -77,7 +79,7 @@ public:
 	void simplifyMesh(int xCellCount, int yCellCount, int zCellCount, std::function<void(std::vector<Vertex>&)> callback)
 	{
 
-		std::thread simplification([=]() {
+		//std::thread simplification([=]() {
 			float xGridSize = (xEnd - xStart) / xCellCount;
 			float yGridSize = (yEnd - yStart) / yCellCount;
 			float zGridSize = (zEnd - zStart) / zCellCount;
@@ -111,9 +113,9 @@ public:
 			}
 			callback(vertices);
 
-		});
+		//});
 
-		simplification.detach();
+		//simplification.detach();
 
 	}
 };

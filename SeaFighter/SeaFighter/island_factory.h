@@ -123,10 +123,13 @@ public:
 		for (int i = 0; i < islandCount; i++)
 		{
 			int minSize = xCount < yCount ? xCount : yCount;
-
-			int r = rand() % (maxR - minR) + minR;
-			int xCenter = rand() % (xCount - 1 - 2 * r) + r;
-			int yCenter = rand() % (yCount - 1 - 2 * r) + r;
+			int r, xCenter, yCenter;
+			do {
+				r = rand() % (maxR - minR) + minR;
+				xCenter = rand() % (xCount - 1 - 2 * r) + r;
+				yCenter = rand() % (yCount - 1 - 2 * r) + r;
+			} while (!((yCenter + r < -1 || yCenter - r > 1) && (xCenter + r < -1 || xCenter - r > 1)));
+			 
 
 
 			auto heightMap = buildIsland(r);

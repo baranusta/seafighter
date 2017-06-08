@@ -15,6 +15,7 @@ private:
 
 
 	glm::vec3 light;
+	glm::vec3 lightOffset;
 	glm::mat4 lightMVP;
 
 	GLuint FramebufferName = 0;
@@ -65,8 +66,8 @@ public:
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, shadowWidth, shadowHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
 		glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthTexture, 0);
 
@@ -108,7 +109,7 @@ public:
 		if (this->light != light)
 		{
 			this->light = light;
-			depthViewMatrix = glm::lookAt(light, glm::vec3(0, 0, 0), glm::vec3(0, 0, 1));
+			depthViewMatrix = glm::lookAt(light + lightOffset, lightOffset, glm::vec3(0, 0, 1));
 			lightMVP = depthProjectionMatrix * depthViewMatrix * depthModelMatrix;
 		} 
 	}
@@ -118,19 +119,21 @@ public:
 		return screenPos / screenPos[3];
 	}
 
-	void updateViewArea()
+	void updateViewArea(glm::vec3 offset)
 	{
+		lightOffset = offset;
+		depthViewMatrix = glm::lookAt(offset + light, offset, glm::vec3(0, 0, 1));
 		glm::vec3 shallowLight = light;
 		shallowLight[2] = 0;
 		shallowLight = glm::normalize(shallowLight);
 		glm::vec3 cosVec = glm::rotateZ(shallowLight, glm::radians(90.f));
 		if (player != nullptr && player->getPosition().length!= 0)
 		{
-			float lengthX = glm::dot(cosVec, player->getPosition());
-			float lengthY = glm::dot(shallowLight, player->getPosition()) / 5;
-			depthProjectionMatrix = glm::ortho<float>(lengthX - 3, lengthX + 3, -1 - lengthY, +1 - lengthY, 1., 25.);
-			lightMVP = depthProjectionMatrix * depthViewMatrix * depthModelMatrix;
+			float lengthX = glm::dot(cosVec, player->getPosition()) / 30;
+			float lengthY = glm::dot(shallowLight, player->getPosition()) / 30;
+			depthProjectionMatrix = glm::ortho<float>(lengthX - 3, lengthX + 3, -4 - lengthY, +4 - lengthY, 1., 25.);
 		}
+		lightMVP = depthProjectionMatrix * depthViewMatrix * depthModelMatrix;
 	}
 
 	void changeRenderedCam()
@@ -153,10 +156,10 @@ public:
 		shadow.draw();
 #else
 		if(player != nullptr)
-			player->draw(viewPos, renderVpCam == true ? playerVp : cameraVp, lightMVP, light, depthTexture);
+			player->draw(viewPos, renderVpCam == true ? playerVp : lightMVP, lightMVP, light, depthTexture);
 
 		for (auto& child : ToRender)
-			child->draw(viewPos, renderVpCam == true ? cameraVp: lightMVP, lightMVP, light, depthTexture);
+			child->draw(viewPos, renderVpCam == true ? cameraVp: lightMVP, lightMVP, light + lightOffset, depthTexture);
 #endif
 	}
 };

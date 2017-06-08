@@ -24,6 +24,7 @@ float getOriginsZ(glm::mat4 matrix);
 class Game
 {
 private:
+	enum IntersectFace{ WEST, NORTH, EAST, SOUTH, NONE };
 	struct PlayerKeyboardStates {
 		bool rotateLeft;
 		bool rotateRight;
@@ -69,14 +70,14 @@ private:
 
 	void addAllObjectsToScene()
 	{
-		//scene.addPlayer(&player, proj * view);
-		//scene.addChildForRender(&sea);
+		scene.addPlayer(&player, proj * view);
+		scene.addChildForRender(&sea);
 		scene.addChildForRender(&monster);
-		//for (auto & island : islands)
-		//{
-		//	scene.addChildForRender(&island);
-		//	scene.addChildForShadow(&island);
-		//}
+		for (auto & island : islands)
+		{
+			scene.addChildForRender(&island);
+			scene.addChildForShadow(&island);
+		}
 
 	}
 
@@ -157,16 +158,64 @@ private:
 		visibleBottomRight = getWorldCoordinate(Vp, width - 1, height - 1, width, height, originsZ);
 	}
 
+	IntersectFace isOutBoundaries(glm::vec3 pos)
+	{
+		if (pos[0] > gameArea.xMax - 1)
+			return EAST;
+		if (pos[0] < gameArea.xMin + 1)
+			return WEST;
+		if (pos[1] > gameArea.yMax - 1)
+			return NORTH;
+		if (pos[1] < gameArea.yMin + 1)
+			return SOUTH;
+		return NONE;
+	}
+
+	void repositionPlayer(IntersectFace intersectedFace, glm::vec3 vec)
+	{
+		switch (intersectedFace)
+		{
+
+		case EAST:
+			player.updatePosition(glm::vec3(-vec[0] + gameArea.xMin, 0, 0));
+			break;
+		case WEST:
+			player.updatePosition(glm::vec3(-vec[0] + gameArea.xMax, 0, 0));
+			break;
+		case NORTH:
+			player.updatePosition(glm::vec3(0, -vec[1] + gameArea.yMin, 0));
+			break;
+		case SOUTH:
+			player.updatePosition(glm::vec3(0, -vec[1] + gameArea.yMax, 0));
+			break;
+		}
+
+	}
+
+	void getIntoBoundaries()
+	{
+		IntersectFace intersectLeft = isOutBoundaries(visibleTopLeft);
+		IntersectFace intersectRight = isOutBoundaries(visibleTopRight);
+		if (intersectLeft != NONE)
+		{
+			repositionPlayer(intersectLeft, visibleBottomRight);
+		}
+		else if(isOutBoundaries(visibleTopRight) != NONE)
+		{
+			repositionPlayer(intersectRight, visibleBottomLeft);
+		}
+	}
+
 public:
 
 	Game(int width, int height) :
-		gameArea(BBox(-10.,+10.,-10.,+10.)),
+		gameArea(BBox(-15.,+15.,-15.,+15.)),
 		score("Holstein.DDS"),
 		sea(glm::vec3((gameArea.xMax - gameArea.xMin)/2, (gameArea.yMax - gameArea.yMin) / 2, 0), "sea_vs.glslx", "sea_fs.glslx"),
 		scene(width, height),
 		player(glm::vec3(0, 0, 0)),
-		monster(glm::vec3(0,0,-0.1)),
-		isMonsterAlive(true),
+		monster(glm::vec3(0,3,-0.1)),
+		isMonsterAlive(false),
 		width(width),
 		height(height)
 	{
@@ -175,8 +224,8 @@ public:
 
 		sea.setSize(sea_xSize, sea_ySize, sea_xSize * 20, sea_ySize * 20);
 
-		IslandFactory factory(9, 9, 0.1, 7, 3);
-		islands = factory.getIslands(10);
+		IslandFactory factory(11, 11, 0.1, 7, 3);
+		islands = factory.getIslands(15);
 
 
 		player.loadModel("Objects/boat17.obj", "Objects/gun3.obj");
@@ -222,12 +271,14 @@ public:
 
 		if (isMonsterAlive)
 		{
-			//monster.updateMonsterPosition(player.getPosition());
+			monster.updateMonsterPosition(player.getPosition());
 			monster.animate();
 		}
 
-		updateVisibleAreas(proj * view);
-		scene.updateViewArea();
+		updateVisibleAreas(glm::inverse(proj * view));
+		getIntoBoundaries();
+
+		scene.updateViewArea(player.getPosition());
 		scene.renderScene(viewPos, proj * view);
 
 		score.printText2D(std::to_string(glfwGetTime()) + " score", 0.5, 0.5, 30);
@@ -250,7 +301,7 @@ public:
 
 	bool isGameOver()
 	{
-		return false;// monster.hasReached(player.getPosition());
+		return isMonsterAlive && monster.hasReached(player.getPosition());
 	}
 
 	void updateLight()
