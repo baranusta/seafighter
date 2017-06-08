@@ -13,10 +13,16 @@ public:
 	Mine()
 	{
 
+		color.diffuse = glm::vec4(0.1, .1, .2, 1.0);
+		color.ambient = glm::vec4(0.1, .1, .1, 1.0);
+		color.specConst = glm::vec4(.5, .5, .5, 1.0);
 	}
 
 	Mine(glm::vec3 pos) : GameObject(pos, "player_vs.glslx")
 	{
+		color.diffuse = glm::vec4(0.1, .1, .2, 1.0);
+		color.ambient = glm::vec4(0.1, .1, .1, 1.0);
+		color.specConst = glm::vec4(0, 0, 0, 1.0);
 	}
 
 	void loadModel()

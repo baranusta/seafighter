@@ -22,6 +22,21 @@ public:
 		boat(glm::vec3(0,0,0),"player_vs.glslx"),
 		gun(glm::vec3(0, 3, 0), "player_vs.glslx")
 	{
+		Color boatColor;
+		Color gunColor;
+
+		gunColor.diffuse = glm::vec4(0.1, .1, .1, 1.0);
+		gunColor.ambient = glm::vec4(0.1, .1, .1, 1.0);
+		gunColor.specConst = glm::vec4(1,1, 1, 1.0);\
+
+		boatColor.diffuse = glm::vec4(0.2, .1, .2, 1.0);
+		boatColor.ambient = glm::vec4(0.2, .2, .1, 1.0);
+		boatColor.specConst = glm::vec4(0, 0, 0, 1.0);
+
+		boat.setColor(boatColor);
+		gun.setColor(gunColor);
+
+
 		rotationAngle = 0;
 		acceleration = 0;
 
@@ -68,7 +83,7 @@ public:
 	void updateSpeed()
 	{
 		float waterForce = 0.000000002f;
-		if(speed<0.005)
+		if(speed<0.01)
 			speed += acceleration - waterForce;
 		if (speed < 0)
 			speed = 0;

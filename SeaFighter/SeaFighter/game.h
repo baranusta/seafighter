@@ -146,9 +146,9 @@ private:
 		if (p_keyboardStates.isDecelerating)
 			player.decelerate();
 		if (p_keyboardStates.rotateLeft)
-			player.rotate(-0.03);
+			player.rotate(-0.1);
 		if (p_keyboardStates.rotateRight)
-			player.rotate(0.03);
+			player.rotate(0.1);
 	}
 
 
@@ -234,10 +234,10 @@ public:
 		sea.setSize(sea_xSize, sea_ySize, sea_xSize * 20, sea_ySize * 20);
 
 		IslandFactory i_factory(11, 11, 0.1, 7, 3);
-		islands = i_factory.getIslands(1);
+		islands = i_factory.getIslands(10);
 
 		MineFactory m_factory(BBox(-6,6,-6,6));
-		mines = m_factory.generateMines(2, islands);
+		mines = m_factory.generateMines(10, islands);
 
 
 		player.loadModel("Objects/boat17.obj", "Objects/gun3.obj");

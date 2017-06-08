@@ -4,7 +4,7 @@
 #include "quad.h"
 #include "mine.h"
 
-#define BULLET_SPEED 0.016f
+#define BULLET_SPEED 0.026f
 
 extern GLuint getTexture(std::string textureName);
 
