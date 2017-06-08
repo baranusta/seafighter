@@ -154,9 +154,12 @@ public:
 				islands_data.push_back(currentIsland);
 			}
 		}
+		std::vector<BBox> temp_bBox;
 		islands.resize(islands_data.size());
 		for (auto& island : islands) {
 			island.buildIsland(unitLength);
+			temp_bBox =  island.getBBox();
+			std::cout << "Island generation" << std::endl;
 		}
 		std::cout << "island generation done." << std::endl;
 		return islands;

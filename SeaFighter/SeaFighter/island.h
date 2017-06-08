@@ -15,6 +15,24 @@ public:
 		color.ambient = glm::vec4(0.3, .2, .1, 1.0);
 		color.specConst = glm::vec4(0, 0, 0, 1.0);
 	}
+	void depth_first_search(int x, int y, int row_count, int col_count, std::vector<int> &boundingbox_xValues, std::vector<int> &boundingbox_yValues, std::vector<std::vector<bool>> &visited) {
+
+		static int dx[] = { +1, 0, -1, 0 };
+		static int dy[] = { 0, +1, 0, -1 };
+
+		if (x < 0 || x == row_count) return; // out of bounds
+		if (y < 0 || y == col_count) return; // out of bounds
+		if (visited[x][y] || m_heightMap[x][y] < 1.0) return; // already labeled or not marked with 1 in m
+
+															  // mark the current 
+		boundingbox_xValues.push_back(x);
+		boundingbox_yValues.push_back(y);
+		visited[x][y] = true;
+
+		// recursively mark the neighbors
+		for (int direction = 0; direction < 4; ++direction)
+			depth_first_search(x + dx[direction], y + dy[direction], row_count, col_count, boundingbox_xValues, boundingbox_yValues, visited);
+	}
 
 	void addHeightMap(float startX, float startY, std::vector<std::vector<double>> heightMap)
 	{
@@ -67,6 +85,74 @@ public:
 		updateDataGPU();
 	}
 
+	void buildIsland2(double gridSize)
+	{
+		std::list<std::vector<int>> list_ofBoundingBoxes_xValues;
+		std::list<std::vector<int>> list_ofBoundingBoxes_yValues;
+
+		std::vector<int> boundingbox_xValues;
+		std::vector<int> boundingbox_yValues;
+
+		std::vector<std::vector<bool>> visited(m_heightMap.size(), std::vector<bool>(m_heightMap[0].size(), false));
+		pos = glm::vec3(m_startX + m_heightMap[0].size() / 2 * gridSize, m_startY + m_heightMap.size() / 2 * gridSize, -0.2);
+		Surface surface = generateSurface(m_startX, m_startY, gridSize, gridSize, m_heightMap[0].size(), m_heightMap.size());
+		indices = surface.indices;
+		vertices = surface.vertices;
+
+		surface.clean();
+
+		setZPositions();
+
+		for (int i = 0; i < m_heightMap.size(); i++)
+		{
+			for (int j = 0; j < m_heightMap[0].size(); j++)
+			{
+				if (m_heightMap[i][j] > 1.0 && !visited[i][j])
+				{
+
+					depth_first_search(i, j, m_heightMap.size(), m_heightMap[0].size(), boundingbox_xValues, boundingbox_yValues, visited);
+
+					list_ofBoundingBoxes_xValues.push_back(boundingbox_xValues);
+					list_ofBoundingBoxes_yValues.push_back(boundingbox_yValues);
+
+					boundingbox_xValues.clear();
+					boundingbox_yValues.clear();
+
+				}
+
+			}
+		}
+		int xmin, xmax, ymin, ymax;
+		std::list<std::vector<int>>::iterator list_it_x;
+		std::list<std::vector<int>>::iterator list_it_y;
+
+		std::vector<int>::iterator vec_it;
+		BBox temp_bBox;
+		for (list_it_x = list_ofBoundingBoxes_xValues.begin(), list_it_y = list_ofBoundingBoxes_yValues.begin(); list_it_x != list_ofBoundingBoxes_xValues.end() && list_it_y != list_ofBoundingBoxes_yValues.end(); ++list_it_x, ++list_it_y)
+		{
+			xmin = *max_element(list_it_x->begin(), list_it_x->end());
+			xmax = *max_element(list_it_x->begin(), list_it_x->end());
+			ymin = *max_element(list_it_y->begin(), list_it_y->end());
+			ymax = *max_element(list_it_y->begin(), list_it_y->end());
+
+			temp_bBox.xMin = m_startX + gridSize * xmin;
+			temp_bBox.xMax = m_startX + gridSize * xmax;
+			temp_bBox.yMin = m_startY + gridSize * ymin;
+			temp_bBox.yMax = m_startY + gridSize * ymax;
+			bBox.push_back(temp_bBox);
+
+		}
+
+		//bBox.xMin = m_startX;
+		//bBox.xMax = m_startX + gridSize * m_heightMap[0].size();
+		//bBox.yMin = m_startY;
+		//bBox.yMax = m_startY + gridSize * m_heightMap.size();
+		m_heightMap.clear();
+
+		setNormals();
+		updateDataGPU();
+	}
+
 
 	void draw(glm::vec3 viewPos, glm::mat4 cameraVp, glm::mat4 lightVp, glm::vec3 light, GLuint textureId)
 	{
@@ -101,6 +187,7 @@ protected:
 	float m_startX, m_startY;
 	std::vector<std::vector<double>> m_heightMap;
 	BBox bBox;
+	//std::vector<BBox> bBox;
 private:
 	std::vector<unsigned int> indices;
 	GLuint elementbuffer;
