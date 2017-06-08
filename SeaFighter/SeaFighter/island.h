@@ -5,6 +5,8 @@
 
 #include <iomanip>
 
+#define MIN_HEIGHT_ISLAND_BBOX 0.01
+
 class Island : public GameObject, public HeightField
 {
 public:
@@ -14,6 +16,27 @@ public:
 		color.diffuse = glm::vec4(0.4, .25, .16, 1.0);
 		color.ambient = glm::vec4(0.3, .2, .1, 1.0);
 		color.specConst = glm::vec4(0, 0, 0, 1.0);
+	}
+
+	void depth_first_search(int x, int y, float gridSize, int row_count, int col_count, BBox& bbox, std::vector<std::vector<bool>> &visited) {
+
+		static int dx[] = { +1, 0, -1, 0 };
+		static int dy[] = { 0, +1, 0, -1 };
+
+		if (x < 0 || x == row_count) return; // out of bounds
+		if (y < 0 || y == col_count) return; // out of bounds
+		if (visited[x][y] || m_heightMap[x][y] < MIN_HEIGHT_ISLAND_BBOX) return; // already labeled or not marked with 1 in m
+
+		// mark the current 
+		bbox.xMin = std::min(bbox.xMin, m_startX + gridSize * x);
+		bbox.xMax = std::max(bbox.xMax, m_startX + gridSize * x);
+		bbox.yMin = std::min(bbox.yMin, m_startY + gridSize * y);
+		bbox.yMax = std::max(bbox.yMax, m_startY + gridSize * y);
+		visited[x][y] = true;
+
+		// recursively mark the neighbors
+		for (int direction = 0; direction < 4; ++direction)
+			depth_first_search(x + dx[direction], y + dy[direction],gridSize , row_count, col_count, bbox , visited);
 	}
 
 	void addHeightMap(float startX, float startY, std::vector<std::vector<double>> heightMap)
@@ -42,25 +65,45 @@ public:
 		//printHeightMap();
 	}
 
-	BBox getBBox()
+	std::vector<BBox> getBBox()
 	{
 		return bBox;
 	}
 
 	void buildIsland(double gridSize)
 	{
+		std::vector<std::vector<bool>> visited(m_heightMap.size(), std::vector<bool>(m_heightMap[0].size(),false));
 		pos = glm::vec3(m_startX + m_heightMap[0].size() / 2 * gridSize, m_startY + m_heightMap.size() / 2 * gridSize, -0.2);
 		Surface surface = generateSurface(m_startX, m_startY, gridSize, gridSize, m_heightMap[0].size(), m_heightMap.size());
 		indices = surface.indices;
 		vertices = surface.vertices;
 		
 		surface.clean();
-
+		
 		setZPositions();
-		bBox.xMin = m_startX;
-		bBox.xMax = m_startX + gridSize * m_heightMap[0].size();
-		bBox.yMin = m_startY;
-		bBox.yMax = m_startY + gridSize * m_heightMap.size();
+
+		for (int i = 0; i < m_heightMap.size(); i++)
+		{
+			for (int j = 0; j < m_heightMap[0].size(); j++)
+			{
+				if (m_heightMap[i][j] > MIN_HEIGHT_ISLAND_BBOX && !visited[i][j])
+				{
+					BBox bbox;
+					bbox.xMin = std::numeric_limits<float>::max();
+					bbox.yMin = std::numeric_limits<float>::max();
+					bbox.xMax = std::numeric_limits<float>::min();
+					bbox.yMax = std::numeric_limits<float>::min();
+					depth_first_search(i, j, gridSize, m_heightMap.size(), m_heightMap[0].size(), bbox, visited);
+					bBox.push_back(bbox);
+				}
+
+			}
+		}
+		
+		//bBox.xMin = m_startX;
+		//bBox.xMax = m_startX + gridSize * m_heightMap[0].size();
+		//bBox.yMin = m_startY;
+		//bBox.yMax = m_startY + gridSize * m_heightMap.size();
 		m_heightMap.clear();
 
 		setNormals();
@@ -100,7 +143,7 @@ protected:
 	//these are the start positions in real world
 	float m_startX, m_startY;
 	std::vector<std::vector<double>> m_heightMap;
-	BBox bBox;
+	std::vector<BBox> bBox;
 private:
 	std::vector<unsigned int> indices;
 	GLuint elementbuffer;

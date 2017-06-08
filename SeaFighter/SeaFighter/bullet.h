@@ -19,10 +19,15 @@ private:
 
 	int getClosestIslandHit(std::vector<Island>& islands)
 	{
+		std::list<BBox>::iterator it;
+
 		float closestDistance = std::numeric_limits<float>::max();
 		for (auto& island : islands)
 		{
-			closestDistance = std::min(closestDistance,getIntersectCubeT(island.getBBox()));
+			for (auto& bBox : island.getBBox()) {
+
+				closestDistance = std::min(closestDistance, getIntersectCubeT(bBox));
+			}
 		}
 		closestDistance += BULLET_SPEED;
 		return closestDistance / BULLET_SPEED;
