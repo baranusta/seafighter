@@ -24,7 +24,6 @@ private:
 		float closestDistance = std::numeric_limits<float>::max();
 		for (auto& island : islands)
 		{
-
 			for (auto& bBox : island.getBBox()) {
 
 				closestDistance = std::min(closestDistance, getIntersectCubeT(bBox));

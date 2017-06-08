@@ -136,7 +136,7 @@ public:
 		scene(width, height),
 		player(glm::vec3(0, 0, 0)),
 		monster(glm::vec3(0,3,-0.1)),
-		isMonsterAlive(true),
+		isMonsterAlive(false),
 		width(width),
 		height(height)
 	{
