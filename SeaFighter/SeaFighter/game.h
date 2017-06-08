@@ -45,6 +45,8 @@ private:
 
 	std::vector<Island> islands;
 	std::list<Bullet*> bullets;
+	std::vector<std::vector<double>> valuesHeightMap;
+	
 
 	glm::vec3 lightPos;
 	glm::vec3 viewPos;
@@ -56,7 +58,8 @@ private:
 
 	bool isLightMoving = false;
 	int width, height;
-
+	float oldPosX;
+	float oldPosY;
 
 	void addAllObjectsToScene()
 	{
@@ -128,6 +131,25 @@ private:
 		viewPos = glm::rotate(cameraOffset, (glm::mediump_float)player.getRotation(), glm::vec3(0, 0, -1)) + player.getPosition();
 		view = glm::lookAt(viewPos, player.getPosition(), glm::vec3(0.0f, 0.0f, 1.0f));
 	}
+
+	bool obtainPlayerMatrix(glm::vec3 playerPosition) {
+		int cubeX = (int)playerPosition.x / 0.1;
+		int cubeY = (int)playerPosition.y / 0.1;
+
+		if (valuesHeightMap[cubeX + 1][cubeY + 1] != 0 |
+			valuesHeightMap[cubeX - 1][cubeY - 1] != 0 |
+			valuesHeightMap[cubeX + 1][cubeY - 1] != 0 |
+			valuesHeightMap[cubeX - 1][cubeY + 1] != 0) {
+
+			return true;
+		}
+		else {
+			return false;
+		}
+
+	}
+
+
 public:
 
 	Game(int width, int height) :
@@ -135,16 +157,21 @@ public:
 		sea(glm::vec3(0, 1.5, 0), "sea_vs.glslx", "sea_fs.glslx"),
 		scene(width, height),
 		player(glm::vec3(0, 0, 0)),
-		monster(glm::vec3(0,3,-0.1)),
+		monster(glm::vec3(0, 3, -0.1)),
 		isMonsterAlive(true),
 		width(width),
 		height(height)
+	
 	{
 		sea.setSize(20, 20, 500, 500);
-
+		oldPosX = oldPosY = 0.0;
 		IslandFactory factory(9, 9, 0.1, 7, 3);
 		islands = factory.getIslands(10);
-
+		bool boleanMap[9][9];
+		memset(boleanMap, 0, sizeof(boleanMap));
+		//valuesHeightMap = factory.getHeightMap();
+		//valuesHeightMap = factory.getHeightMap();
+		
 
 		player.loadModel("Objects/boat17.obj", "Objects/gun3.obj");
 
@@ -212,7 +239,7 @@ public:
 
 	bool isGameOver()
 	{
-		return monster.hasReached(player.getPosition());
+		return monster.hasReached(player.getPosition()) | obtainPlayerMatrix(player.getPosition());
 	}
 
 	void updateLight()
@@ -225,4 +252,62 @@ public:
 	{
 		return isLightMoving;
 	}
+
+#define unitrid 0.1
+	
+	void isBoatCollideIsland(glm::vec3 playerPosition, std::vector<std::vector<double>> map, std::vector<Island> islands)
+	{
+		bool visited[5][5];
+		memset(visited, 0, sizeof(visited));
+
+		int count = 0;
+		for (int i = 0; i < 5; ++i) {
+			for (int j = 0; j < 5; ++j) {
+				if (map[i][j] && !visited[i][j]) // If a cell with value 1 is not
+				{							// visited yet, then new island found
+					//DFS(map, i, j, visited);     // Visit all cells in this island.
+					++count;                   // and increment island count
+				}
+			}
+		}
+
+	}
+
+
+
+#define ROW 5 //Must be the size of the all hight map of boleans
+#define COL 5
+
+	// A function to check if a given cell (row, col) can be included in DFS
+	int isSafe(int M[][COL], int row, int col, bool visited[][COL])
+	{
+		// row number is in range, column number is in range and value is 1 
+		// and not yet visited
+		return (row >= 0) && (row < ROW) &&
+			(col >= 0) && (col < COL) &&
+			(M[row][col] && !visited[row][col]);
+	}
+
+	// A utility function to do DFS for a 2D boolean matrix. It only considers
+	// the 8 neighbours as adjacent vertices
+	void DFS(int M[][COL], int row, int col, bool visited[][COL])
+	{
+		// These arrays are used to get row and column numbers of 8 neighbours 
+		// of a given cell
+		static int rowNbr[] = { -1, -1, -1,  0, 0,  1, 1, 1 };
+		static int colNbr[] = { -1,  0,  1, -1, 1, -1, 0, 1 };
+
+		// Mark this cell as visited
+		visited[row][col] = true;
+
+		// Recur for all connected neighbours
+		for (int k = 0; k < 8; ++k)
+			if (isSafe(M, row + rowNbr[k], col + colNbr[k], visited))
+				DFS(M, row + rowNbr[k], col + colNbr[k], visited);
+	}
+
+
+
 };
+
+

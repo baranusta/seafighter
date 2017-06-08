@@ -18,7 +18,7 @@ private:
 
 	int minR = 3;
 	int maxR = 10;
-
+	std::vector<std::vector<double>> m_heightMap;
 
 	struct islandData {
 		int startX;
@@ -130,6 +130,7 @@ public:
 
 
 			auto heightMap = buildIsland(r);
+			m_heightMap = heightMap;
 			islandData currentIsland;
 			currentIsland.startX = xCenter - r;
 			currentIsland.startY = yCenter - r;
@@ -154,10 +155,63 @@ public:
 			}
 		}
 		islands.resize(islands_data.size());
-		for (auto& island : islands)
+		for (auto& island : islands) {
 			island.buildIsland(unitLength);
-
+		}
 		std::cout << "island generation done." << std::endl;
 		return islands;
 	}
+
+	std::vector<std::vector<int>> getBoolHeightMap() {
+
+		std::vector<std::vector<int>> visited = { {false} };
+		BBox currentBox;
+		for (int i = 0; i < m_heightMap.size(); i++){
+
+			for (int j = 0; j < m_heightMap[j].size(); j++) {
+				
+				if (m_heightMap[i][j] > 0) {
+					visited[i][j] = 1;
+				}
+				else {
+					visited[i][j] = 0;
+				}
+			}
+
+		}
+		return visited;
+	}
+
+
+
+	std::vector<std::vector<double>> getHeightMap() {
+		return m_heightMap;
+	}
+
+	void findIslandNeighbors(std::vector<std::vector<double>> islands , int x, int y) {
+		try
+		{
+			if (islands[x][y])
+			{
+				islands[x][y] = 0;
+				findIslandNeighbors(islands, x + 1, y);
+				findIslandNeighbors(islands, x, y + 1);
+				findIslandNeighbors(islands, x - 1, y);
+				findIslandNeighbors(islands, x, y - 1);
+				findIslandNeighbors(islands, x + 1, y + 1);
+				findIslandNeighbors(islands, x - 1, y - 1);
+				findIslandNeighbors(islands, x + 1, y - 1);
+				findIslandNeighbors(islands, x - 1, y + 1);
+			}
+		}
+		catch (const std::exception&)
+		{
+
+		}
+	}
+
+
+
+
+
 };
