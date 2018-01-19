@@ -13,18 +13,34 @@ layout(location = 6) uniform vec4 specConst;
 
 in vec3 fragPos; // World-space position
 in vec3 fragNormal; // World-space position
+in vec4 shadowMapPos;
 
+uniform sampler2D shadowMap;
+
+bool ShadowCalculation(vec4 fragPosLightSpace,float bias)
+{
+    // perform perspective divide
+    vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+    // transform to [0,1] range
+    projCoords = projCoords * 0.5 + 0.5;
+    // get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
+    float closestDepth = texture(shadowMap, projCoords.xy).r; 
+    // get depth of current fragment from light's perspective
+    float currentDepth = projCoords.z;
+    // check whether current frag pos is in shadow
+    return currentDepth > closestDepth + bias ? true : false;
+}  
 
 void main() {
-    
-    vec3 lightRay = normalize(lightPos - fragPos);
-    float diffuseFact = dot(lightRay, fragNormal);
-    if(lightPos.z > 0. && diffuseFact > 0.)
+    vec3 lightDir = normalize(vec3(0.,0.,-1.));
+    float diffuseFact = dot(-lightDir, fragNormal);
+    float bias = max(0.05 * (1.0 - diffuseFact), 0.005);  
+    if(!ShadowCalculation(shadowMapPos,bias) && lightDir.z < 0. && diffuseFact > 0.)
     {        
         vec3 toEye = normalize(view_pos - fragPos);
-        vec3 reflect = -lightRay - 2. * (dot(fragNormal,-lightRay)) * fragNormal;
+        vec3 reflect = lightDir + 2. * diffuseFact * fragNormal;
         float specFact = pow(dot(toEye,reflect),16.);
-        outColor = ambient + diffuseFact * diffuseColor + specFact * specConst;
+        outColor = ambient + diffuseFact * diffuseColor;// + specFact * specConst;
     }
     else
         outColor = ambient;

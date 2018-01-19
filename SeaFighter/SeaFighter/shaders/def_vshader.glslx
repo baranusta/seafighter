@@ -1,9 +1,11 @@
 #version 430
 
 // Model/view/projection matrix
-layout(location = 0) uniform mat4 mvp;
-layout(location = 2) uniform vec3 view_pos;
+layout(location = 0) uniform mat4 Vp;
+layout(location = 7) uniform mat4 model;
+layout(location = 8) uniform mat4 lightVp;
 layout(location = 3) uniform float time;
+layout(location = 9) uniform bool isShadowStage;
 
 // Per-vertex attributes
 layout(location = 0) in vec3 pos; // World-space position
@@ -12,13 +14,17 @@ layout(location = 1) in vec3 normal; // World-space normal
 
 out vec3 fragPos;
 out vec3 fragNormal;
+out vec4 shadowMapPos;
 
-
-void main(void) {
-    mvp;
-    view_pos;
+void main(void) {    
     time;
-    fragPos = pos;
-    fragNormal = normal;
-    gl_Position = mvp * vec4(pos,1.0);
+    vec4 wNPos = model * vec4(pos + normal,1.0);
+    vec4 wPos = model * vec4(pos,1.0);
+    fragPos = wPos.xyz/wPos.w;
+    fragNormal = wNPos.xyz / wNPos.w - fragPos;    
+    
+    gl_Position = Vp * wPos;
+    if(!isShadowStage)
+        shadowMapPos = lightVp * wPos;
+    
 }

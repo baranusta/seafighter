@@ -142,14 +142,23 @@
     <ClCompile Include="common.h" />
     <ClCompile Include="gl_controller.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="utils.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="bullet.h" />
+    <ClInclude Include="game.h" />
     <ClInclude Include="game_object.h" />
     <ClInclude Include="gl_controller.h" />
     <ClInclude Include="height_field.h" />
     <ClInclude Include="island.h" />
     <ClInclude Include="island_factory.h" />
+    <ClInclude Include="mesh_controller.h" />
+    <ClInclude Include="mine.h" />
+    <ClInclude Include="mine_factory.h" />
+    <ClInclude Include="monster.h" />
     <ClInclude Include="player.h" />
+    <ClInclude Include="quad.h" />
+    <ClInclude Include="scene.h" />
     <ClInclude Include="sea.h" />
     <ClInclude Include="shader_controller.h" />
     <ClInclude Include="tiny_obj_loader.h" />

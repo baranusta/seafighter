@@ -117,7 +117,7 @@ public:
 		else
 			shaders[name].usedBy--;
 	}
-};
+};/*
 
-
-std::unordered_map<std::string, ShaderController::shaderObj> ShaderController::shaders;
+std::string ShaderController::currentlyUsedName = "";*/
+std::unordered_map<std::string, ShaderController::shaderObj> ShaderController::shaders = {};

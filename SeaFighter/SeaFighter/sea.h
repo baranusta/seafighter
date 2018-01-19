@@ -45,31 +45,63 @@ public:
 		updateDataGPU();
 	}
 
-	void draw(glm::mat4 mvp, glm::vec3 viewPos,glm::vec3 light)
+	void draw(glm::vec3 viewPos, glm::mat4 cameraVp, glm::mat4 lightVp, glm::vec3 light, GLuint textureId)
 	{
+		printError("1 ");
 		//maybe first check whether it should be drawn 
 		glBindVertexArray(vao);
-		shader();
-		glUniformMatrix4fv(0, 1, GL_FALSE, glm::value_ptr(mvp));
+		shaderDraw();
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, textureId);
+
+		glUniform1i(9, 0);
+		glUniformMatrix4fv(0, 1, GL_FALSE, glm::value_ptr(cameraVp));
+		glUniformMatrix4fv(7, 1, GL_FALSE, glm::value_ptr(model));
+		glUniformMatrix4fv(8, 1, GL_FALSE, glm::value_ptr(lightVp));
 
 		//light
 		glUniform3fv(1, 1, glm::value_ptr(light));
 		glUniform3fv(2, 1, glm::value_ptr(viewPos));
 
-		//std::cout << glfwGetTime()<<std::endl;
 		glUniform1f(3, static_cast<float>(glfwGetTime()));
 		glUniform1f(4, gridWidth);
 		glUniform1f(5, gridHeight);
-		//glUniform1f(4, startX);
-		//glUniform1f(5, startY);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
-		// Bind the texture to slot 0
-		//glActiveTexture(GL_TEXTURE0);
-		//glBindTexture(GL_TEXTURE_2D, texToon);
 
 		glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT , (void*)0);
+
+		printError("6 "); 
 		glBindVertexArray(0);
 
+		printError("OpenGL error sea: ");
+	}
+
+	void renderShadowMap(glm::mat4 lightVp)
+	{
+		//maybe first check whether it should be drawn 
+		printError("A");
+		glBindVertexArray(vao);
+		shaderDraw();
+		printError("B");
+		glUniform1i(9, 1);
+		printError("C");
+		glUniformMatrix4fv(0, 1, GL_FALSE, glm::value_ptr(lightVp));
+		glUniformMatrix4fv(7, 1, GL_FALSE, glm::value_ptr(model));
+		printError("D");
+
+		glUniform1f(3, static_cast<float>(glfwGetTime()));
+		printError("E");
+		glUniform1f(4, gridWidth);
+		glUniform1f(5, gridHeight);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
+		printError("F");
+
+		glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, (void*)0);
+		printError("D");
+		glBindVertexArray(0);
+
+		printError("yo");
 		GLenum err;
 		while ((err = glGetError()) != GL_NO_ERROR) {
 			std::cout << "OpenGL error sea: " << err << gluErrorString(err) << std::endl;
