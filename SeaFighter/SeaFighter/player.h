@@ -64,7 +64,7 @@ public:
 		float rad = glm::radians(angle);
 		rotationAngle += rad;
 		direction = glm::rotate(direction, -rad, glm::vec3(0, 0, 1));
-		//model = glm::rotate(model, -rad, glm::vec3(0, 0, 1));
+		model = glm::rotate(model, -rad, glm::vec3(0, 0, 1));
 	}
 
 	void reset()
@@ -82,20 +82,25 @@ public:
 
 	void updateSpeed()
 	{
-		float waterForce = 0.000000002f;
-		if(speed<0.01)
-			speed += acceleration - waterForce;
-		if (speed < 0)
+		float waterForce = 0.000006f;
+
+		acceleration -= waterForce;
+		speed += acceleration;
+		if (speed > 0.01)
+		{
+			speed = 0.01;
+		}
+		if (speed < 0) {
 			speed = 0;
-		if (acceleration > 0)
-			acceleration -= waterForce;
+			acceleration = 0;
+		}
 	}
 
 	bool updatePosition()
 	{
 		glm::vec3 oldPos = pos;
 		pos += direction * speed;
-		model = glm::translate(model, direction * speed);
+		model = glm::translate(model, glm::vec3(0, 1, 0) * speed);
 		return pos != oldPos;
 	}
 
@@ -107,12 +112,12 @@ public:
 
 	void accelerate()
 	{
-		acceleration += 0.0000001;
+		acceleration += 0.00001;
 	}
 
 	void decelerate()
 	{
-		acceleration -= 0.0000001;
+		acceleration -= 0.0001;
 	}
 
 	void rotateGunTo(glm::vec3 toPosition)
@@ -147,13 +152,13 @@ public:
 	
 	void draw(glm::vec3 viewPos, glm::mat4 cameraVp, glm::mat4 lightVp, glm::vec3 light,  GLuint textureId)
 	{
-		boat.draw(viewPos, cameraVp, lightVp, light, textureId);
-		gun.draw(viewPos, cameraVp, lightVp, light, textureId);
+		boat.draw(viewPos, cameraVp, lightVp * model, light, textureId);
+		gun.draw(viewPos, cameraVp, lightVp * model, light, textureId);
 	}
 	
-	void renderShadowMap(glm::mat4 lightVp)
+	void renderShadowMap(glm::mat4 lightVp, glm::mat4 parentModel)
 	{
-		boat.renderShadowMap(lightVp * model);
-		gun.renderShadowMap(lightVp * model);
+		boat.renderShadowMap(lightVp, model);
+		gun.renderShadowMap(lightVp, model);
 	}
 };

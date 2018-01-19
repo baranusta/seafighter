@@ -16,13 +16,15 @@ out vec3 fragPos;
 out vec3 fragNormal;
 out vec4 shadowMapPos;
 
-void main(void) {
+void main(void) {    
     time;
-    fragPos = pos;
-    fragNormal = normal;    
+    vec4 wNPos = model * vec4(pos + normal,1.0);
+    vec4 wPos = model * vec4(pos,1.0);
+    fragPos = wPos.xyz/wPos.w;
+    fragNormal = wNPos.xyz / wNPos.w - fragPos;    
     
-    gl_Position = Vp * model * vec4(fragPos,1.0);
+    gl_Position = Vp * wPos;
     if(!isShadowStage)
-        shadowMapPos = lightVp * model * vec4(fragPos,1.0);
+        shadowMapPos = lightVp * wPos;
     
 }

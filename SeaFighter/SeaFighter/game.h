@@ -282,6 +282,7 @@ public:
 		}
 
 		updatePlayerState();
+		printError("zaaaaaaa");
 		player.updateSpeed();
 		
 
@@ -296,6 +297,7 @@ public:
 
 		scene.updateViewArea(player.getPosition());
 		scene.renderScene(viewPos, proj * view);
+		printError("saaaaaaa");
 
 		int aliveMineCount = 0;
 		int i = 0;
@@ -329,7 +331,7 @@ public:
 			}
 		}
 
-		score.printText2D("Remaining Mine count is " + std::to_string(aliveMineCount), 0.5, 0.5, 30);
+		//score.printText2D("Remaining Mine count is " + std::to_string(aliveMineCount), 0.5, 0.5, 30);
 
 		for (std::list<Bullet*>::const_iterator iterator = bullets.begin(), end = bullets.end(); iterator != end;) {
 			Bullet* bullet = *iterator;

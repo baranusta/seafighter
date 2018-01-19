@@ -44,10 +44,10 @@ private:
 		glBindTexture(GL_TEXTURE_2D, depthTexture);
 
 		if(player != nullptr)
-			player->renderShadowMap(lightMVP);
+			player->renderShadowMap(lightMVP,glm::mat4());
 
 		for (auto& child : ToShadowRender)
-			child->renderShadowMap(lightMVP);
+			child->renderShadowMap(lightMVP, glm::mat4());
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glViewport(0, 0, screenWidth, screenHeight);
@@ -144,15 +144,18 @@ public:
 	void renderScene(glm::vec3 viewPos, glm::mat4 cameraVp)
 	{
 		renderShadow();
+		printError("3423423aaaaaa");
 
 		// clear buffers
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glBindTexture(GL_TEXTURE_2D, depthTexture);
+		printError("dfgdfgdfdaaaaaa");
 
 #ifdef DEBUG_SHADOW
 		Quad shadow;
+		printError("kaaaaaaaa");
 		shadow.draw();
 #else
 		if(player != nullptr)

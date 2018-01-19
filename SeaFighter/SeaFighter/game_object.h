@@ -254,32 +254,34 @@ public:
 		//// Execute draw command
 		printError("qqqqqqqqq");
 		glDrawArrays(GL_TRIANGLES, 0, vertices.size());
-		printError("wwwwwwwwwwf");
 
-		printError("Game object draw end");
 	}
 
-	virtual void renderShadowMap(glm::mat4 lightVp)
+	virtual void renderShadowMap(glm::mat4 lightVp, glm::mat4 parentModel)
 	{
 		if (!isVisible)
 			return;
 
-		printError("yo5");
 		glBindVertexArray(vao);
+		printError("qaaaaaaaaa");
 		glBindBuffer(GL_ARRAY_BUFFER, vbo);
+		printError("qssssssss");
 		shaderShadow();
 
+		printError("qddddddd");
 		glUniform1i(9, 1);
+		printError("qwwwwwwww");
 		glUniformMatrix4fv(0, 1, GL_FALSE, glm::value_ptr(lightVp));
+		printError("qeeeeeeeeeeee");
 		glUniformMatrix4fv(7, 1, GL_FALSE, glm::value_ptr(model));
+		printError("qffffffffffff");
 
-		printError("yo2");
 		glUniform1f(3, static_cast<float>(glfwGetTime()));
 
-		printError("yo1");
+		printError("qrrrrrrrrrrrr");
 		//// Execute draw command
 		glDrawArrays(GL_TRIANGLES, 0, vertices.size());
-		printError("ya");
+		printError("qqqqqqqqq");
 
 		printError("Game object shadow end");
 		glBindVertexArray(0);

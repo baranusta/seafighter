@@ -18,11 +18,17 @@ out vec4 shadowMapPos;
 
 
 void main(void) {
-    time;
-    fragPos = vec3(pos.x,pos.y + cos(time * 5.)/4.,pos.z);
-    fragNormal = normal;
+    mat4 translate = mat4(1.0, 0.0, 0.0, 0, 
+                            0.0, 1.0, 0.0, 0, 
+                            0.0, 0.0, 1.0, cos(time * 5.)/5. ,  
+                            0.0, 0.0, 0.0, 1.0);
 
-    gl_Position = Vp * model * vec4(fragPos,1.0);
+    vec4 virtualNPoint = translate * model * vec4(pos + normalize(normal),1.0);
+    vec4 worldPos = translate * model * vec4(pos,1.0);
+    fragPos = worldPos.xyz/ worldPos.w;
+    fragNormal = normalize(virtualNPoint.xyz/virtualNPoint.w - fragNormal);
+
+    gl_Position = Vp * worldPos;
     if(!isShadowStage)
-        shadowMapPos = lightVp * model * vec4(fragPos,1.0);
+        shadowMapPos = lightVp * worldPos;
 }

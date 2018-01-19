@@ -32,16 +32,16 @@ bool ShadowCalculation(vec4 fragPosLightSpace,float bias)
 }  
 
 void main() {
-    vec3 lightRay = normalize(lightPos - fragPos);
-    float diffuseFact = dot(lightRay, fragNormal);
+    vec3 lightDir = normalize(vec3(0.,0.,-1.));
+    float diffuseFact = dot(-lightDir, fragNormal);
     float bias = max(0.05 * (1.0 - diffuseFact), 0.005);  
-        if(!ShadowCalculation(shadowMapPos,bias) && lightPos.z > 0. && diffuseFact > 0.)
-        {        
-            vec3 toEye = normalize(view_pos - fragPos);
-            vec3 reflect = -lightRay - 2. * (dot(fragNormal,-lightRay)) * fragNormal;
-            float specFact = pow(dot(toEye,reflect),16.);
-            outColor = ambient + diffuseFact * diffuseColor + specFact * specConst;
-        }
-        else
-            outColor = ambient;
+    if(!ShadowCalculation(shadowMapPos,bias) && lightDir.z < 0. && diffuseFact > 0.)
+    {        
+        vec3 toEye = normalize(view_pos - fragPos);
+        vec3 reflect = lightDir + 2. * diffuseFact * fragNormal;
+        float specFact = pow(dot(toEye,reflect),16.);
+        outColor = ambient + diffuseFact * diffuseColor;// + specFact * specConst;
+    }
+    else
+        outColor = ambient;
 }
