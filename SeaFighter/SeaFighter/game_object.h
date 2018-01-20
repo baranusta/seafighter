@@ -257,7 +257,7 @@ public:
 
 	}
 
-	virtual void renderShadowMap(glm::mat4 lightVp, glm::mat4 parentModel)
+	virtual void renderShadowMap(glm::mat4 lightVp)
 	{
 		if (!isVisible)
 			return;

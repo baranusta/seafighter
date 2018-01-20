@@ -330,8 +330,9 @@ public:
 				mine->update();
 			}
 		}
-
-		//score.printText2D("Remaining Mine count is " + std::to_string(aliveMineCount), 0.5, 0.5, 30);
+		#ifndef DEBUG_SHADOW
+				score.printText2D("Remaining Mine count is " + std::to_string(aliveMineCount), 0.5, 0.5, 30);
+		#endif
 
 		for (std::list<Bullet*>::const_iterator iterator = bullets.begin(), end = bullets.end(); iterator != end;) {
 			Bullet* bullet = *iterator;

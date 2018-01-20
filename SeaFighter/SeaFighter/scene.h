@@ -44,10 +44,10 @@ private:
 		glBindTexture(GL_TEXTURE_2D, depthTexture);
 
 		if(player != nullptr)
-			player->renderShadowMap(lightMVP,glm::mat4());
+			player->renderShadowMap(lightMVP);
 
 		for (auto& child : ToShadowRender)
-			child->renderShadowMap(lightMVP, glm::mat4());
+			child->renderShadowMap(lightMVP);
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glViewport(0, 0, screenWidth, screenHeight);

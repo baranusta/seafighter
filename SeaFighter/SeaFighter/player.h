@@ -156,9 +156,9 @@ public:
 		gun.draw(viewPos, cameraVp, lightVp * model, light, textureId);
 	}
 	
-	void renderShadowMap(glm::mat4 lightVp, glm::mat4 parentModel)
+	void renderShadowMap(glm::mat4 lightVp)
 	{
-		boat.renderShadowMap(lightVp, model);
-		gun.renderShadowMap(lightVp, model);
+		boat.renderShadowMap(lightVp * model);
+		gun.renderShadowMap(lightVp * model);
 	}
 };
