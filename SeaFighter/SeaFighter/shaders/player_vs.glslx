@@ -23,12 +23,11 @@ void main(void) {
                             0.0, 0.0, 1.0, 0.0 ,  
                             0.0, 0.0, cos(time * 5.)/80., 1.0);
 
-    //vec3 updated_pos = vec3(pos.xy, pos.z +  cos(time * 5.)/5.) ;
 
     vec4 virtualNPoint = translate * model * vec4(pos + normalize(normal),1.0);
     vec4 worldPos = translate * model * vec4(pos,1.0);
     fragPos = worldPos.xyz/ worldPos.w;
-    fragNormal = normalize(virtualNPoint.xyz/virtualNPoint.w - fragNormal);
+    fragNormal = normalize(virtualNPoint.xyz/virtualNPoint.w - fragPos);
 
     gl_Position = Vp * worldPos;
     if(!isShadowStage)
