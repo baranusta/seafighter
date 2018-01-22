@@ -196,6 +196,11 @@ private:
 			glm::vec3 edge1 = vertices[vertex2].Position - vertices[vertex1].Position;
 			glm::vec3 edge2 = vertices[vertex3].Position - vertices[vertex1].Position;
 			glm::vec3 Normal = glm::normalize(glm::cross(edge1, edge2));
+			if (Normal[2] < 0)
+			{
+
+				Normal *= -1;
+			}
 			
 			vertices[vertex1].Normal += Normal;
 			vertices[vertex2].Normal += Normal;
