@@ -107,7 +107,7 @@ public:
 		if (!isVisible)
 			return;
 
-		passBasicsToGPU(shaderDraw, cameraVp, viewPos, light, lightVp, textureId);
+		passBasicsToGPU(shaderDraw, cameraVp, viewPos, light, lightVp, model, textureId);
 
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
 		glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, (void*)0);

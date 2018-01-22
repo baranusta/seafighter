@@ -27,7 +27,7 @@ public:
 
 	void loadModel()
 	{
-		GameObject::loadModel("Objects/watermine7.obj");
+		GameObject::loadModel("Objects/watermine9.obj");
 		for (auto vertex : vertices)
 		{
 			glm::vec3& v_pos = scaleFact * vertex.Position;

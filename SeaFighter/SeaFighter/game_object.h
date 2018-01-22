@@ -81,6 +81,7 @@ public:
 		glGenBuffers(1, &vbo);
 		glGenVertexArrays(1, &vao);
 
+		model = glm::translate(glm::mat4(), pos);
 
 		updateDataGPU();
 	}
@@ -196,6 +197,8 @@ public:
 
 	virtual void setPosition(glm::vec3 position)
 	{
+		glm::vec3 transitionVec = position - this->pos;
+		model = glm::translate(model, transitionVec);
 		this->pos = position;
 	}
 
@@ -209,7 +212,7 @@ public:
 		isVisible = visibility;
 	}
 
-	void passBasicsToGPU(ShaderController& shader,glm::mat4 vp, glm::vec3 viewPos, glm::vec3 light, glm::mat4 lightVp, GLuint textureId)
+	void passBasicsToGPU(ShaderController& shader,glm::mat4 vp, glm::vec3 viewPos, glm::vec3 light, glm::mat4 lightVp, glm::mat4 model, GLuint textureId)
 	{
 		glBindVertexArray(vao);
 		printError("yossss5st");
@@ -242,12 +245,26 @@ public:
 
 	}
 
+	virtual void draw(glm::vec3 viewPos, glm::mat4 cameraVp, glm::mat4 lightVp, glm::mat4 parentModel, glm::vec3 light, GLuint textureId)
+	{
+		if (!isVisible)
+			return;
+
+		passBasicsToGPU(shaderDraw, cameraVp, viewPos, light, lightVp, parentModel * model, textureId);
+		//glActiveTexture(GL_TEXTURE0);
+		//glBindTexture(GL_TEXTURE_2D, texToon);
+
+		//// Execute draw command
+		printError("qqqqqqqqq");
+		glDrawArrays(GL_TRIANGLES, 0, vertices.size());
+	}
+
 	virtual void draw(glm::vec3 viewPos,glm::mat4 cameraVp, glm::mat4 lightVp, glm::vec3 light,  GLuint textureId)
 	{
 		if (!isVisible)
 			return;
 
-		passBasicsToGPU(shaderDraw, cameraVp, viewPos, light, lightVp, textureId);
+		passBasicsToGPU(shaderDraw, cameraVp, viewPos, light, lightVp, model, textureId);
 		//glActiveTexture(GL_TEXTURE0);
 		//glBindTexture(GL_TEXTURE_2D, texToon);
 		
@@ -257,31 +274,44 @@ public:
 
 	}
 
+	virtual void renderShadowMap(glm::mat4 lightVp, glm::mat4 parentModel)
+	{
+		if (!isVisible)
+			return;
+
+		glBindVertexArray(vao);
+		glBindBuffer(GL_ARRAY_BUFFER, vbo);
+		shaderShadow();
+
+		glUniform1i(9, 1);
+		glUniformMatrix4fv(0, 1, GL_FALSE, glm::value_ptr(lightVp));
+		glUniformMatrix4fv(7, 1, GL_FALSE, glm::value_ptr(parentModel * model));
+
+		glUniform1f(3, static_cast<float>(glfwGetTime()));
+		//// Execute draw command
+		glDrawArrays(GL_TRIANGLES, 0, vertices.size());
+
+		printError("Game object shadow end");
+		glBindVertexArray(0);
+	}
+
 	virtual void renderShadowMap(glm::mat4 lightVp)
 	{
 		if (!isVisible)
 			return;
 
 		glBindVertexArray(vao);
-		printError("qaaaaaaaaa");
 		glBindBuffer(GL_ARRAY_BUFFER, vbo);
-		printError("qssssssss");
 		shaderShadow();
 
-		printError("qddddddd");
 		glUniform1i(9, 1);
-		printError("qwwwwwwww");
 		glUniformMatrix4fv(0, 1, GL_FALSE, glm::value_ptr(lightVp));
-		printError("qeeeeeeeeeeee");
 		glUniformMatrix4fv(7, 1, GL_FALSE, glm::value_ptr(model));
-		printError("qffffffffffff");
 
 		glUniform1f(3, static_cast<float>(glfwGetTime()));
 
-		printError("qrrrrrrrrrrrr");
 		//// Execute draw command
 		glDrawArrays(GL_TRIANGLES, 0, vertices.size());
-		printError("qqqqqqqqq");
 
 		printError("Game object shadow end");
 		glBindVertexArray(0);

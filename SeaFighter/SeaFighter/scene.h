@@ -11,7 +11,6 @@ private:
 	std::vector<GameObject*> ToRender;
 	std::vector<GameObject*> ToShadowRender;
 	GameObject* player;
-	glm::mat4 playerVp;
 
 
 	glm::vec3 light;
@@ -98,10 +97,9 @@ public:
 		ToRender.push_back(child);
 	}
 
-	void addPlayer(GameObject* child, glm::mat4 cameraVp)
+	void addPlayer(GameObject* child)
 	{
 		player = child;
-		playerVp = cameraVp;
 	}
 
 	void setLight(glm::vec3 light)
@@ -159,7 +157,7 @@ public:
 		shadow.draw();
 #else
 		if(player != nullptr)
-			player->draw(viewPos, renderVpCam == true ? playerVp : lightMVP, lightMVP, light, depthTexture);
+			player->draw(viewPos, renderVpCam == true ? cameraVp : lightMVP, lightMVP, light, depthTexture);
 
 		for (auto& child : ToRender)
 			child->draw(viewPos, renderVpCam == true ? cameraVp: lightMVP, lightMVP, light + lightOffset, depthTexture);

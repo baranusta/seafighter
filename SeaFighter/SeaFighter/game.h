@@ -72,7 +72,7 @@ private:
 
 	void addAllObjectsToScene()
 	{
-		scene.addPlayer(&player, proj * view);
+		scene.addPlayer(&player);
 		scene.addChildForRender(&sea);
 		scene.addChildForRender(&monster);
 		for (auto & island : islands)
@@ -239,8 +239,7 @@ public:
 		MineFactory m_factory(BBox(-6,6,-6,6));
 		mines = m_factory.generateMines(10, islands);
 
-
-		player.loadModel("Objects/boat17.obj", "Objects/gun3.obj");
+		player.loadModel("Objects/boat-b.obj", "Objects/gun-b.obj");
 		monster.setVisibility(false);
 
 
@@ -255,7 +254,6 @@ public:
 
 		inverseInitialMvp = glm::inverse(proj * view);
 
-		player.setModel(glm::scale(glm::mat4(), glm::vec3(0.08, 0.08, 0.08)));
 
 		addAllObjectsToScene();
 		scene.setLight(lightPos);
@@ -276,14 +274,10 @@ public:
 
 	void gameLoop(int frame)
 	{
-		if (frame == 0 || player.updatePosition())
-		{
-			updateCamera();
-		}
-
+		updateCamera();
 		updatePlayerState();
-		printError("zaaaaaaa");
 		player.updateSpeed();
+		player.updatePosition();
 		
 
 		if (isMonsterAlive)
