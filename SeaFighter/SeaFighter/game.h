@@ -243,7 +243,7 @@ public:
 		monster.setVisibility(false);
 
 
-		lightPos = glm::vec3(-5.f, 10.0f, 3.f);
+		lightPos = glm::vec3(-5.f, 5.0f, 3.f);
 
 		cameraOffset = glm::vec3(.0f, -1.0f, 3.05f);
 		viewPos = cameraOffset;

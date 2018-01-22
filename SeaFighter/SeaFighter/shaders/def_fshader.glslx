@@ -3,7 +3,7 @@
 // Output for on-screen color
 layout(location = 0) out vec4 outColor;
 
-layout(location = 1) uniform vec3 lightPos;
+layout(location = 1) uniform vec3 lightDir;
 layout(location = 2) uniform vec3 view_pos;
 
 
@@ -32,7 +32,6 @@ bool ShadowCalculation(vec4 fragPosLightSpace,float bias)
 }  
 
 void main() {
-    vec3 lightDir = normalize(vec3(0.,0.,-1.));
     float diffuseFact = dot(-lightDir, fragNormal);
     float bias = max(0.005 * (1.0 - diffuseFact), 0.005);  
     if(!ShadowCalculation(shadowMapPos,bias) && lightDir.z < 0. && diffuseFact > 0.)

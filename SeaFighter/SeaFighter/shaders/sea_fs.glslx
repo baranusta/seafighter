@@ -3,7 +3,7 @@
 // Output for on-screen color
 layout(location = 0) out vec4 outColor;
 
-layout(location = 1) uniform vec3 lightPos;
+layout(location = 1) uniform vec3 lightDir;
 layout(location = 2) uniform vec3 view_pos;
 layout(location = 3) uniform float time;
 
@@ -52,15 +52,17 @@ void main() {
     }
     else 
     {
-        vec3 lightDir = normalize(vec3(0.,0.,-1.));
         float difFact = dot(-lightDir, fragNormal);
         if(difFact<0.)
             outColor = ambient;
         else{
+            outColor = ambient + difFact * vec4(0.25,.35,0.45,1.0) * fragPos.z * 8.;
+
             vec3 toEye = normalize(view_pos - fragPos);
             vec3 reflect = lightDir + 2. * difFact * fragNormal;
-            float specFact = pow(dot(toEye,reflect),8.0);
-            outColor = ambient + difFact * vec4(0.25,.35,0.45,1.0) * fragPos.z * 8. + specFact * vec4(0.25,.35,0.45,1.0);
+            float specFact = dot(toEye,reflect);
+            if(specFact>0.)
+                outColor += pow(specFact,8.0) * vec4(0.25,.35,0.45,1.0);
             //foam effect.. not a good one..
             // if(fragPos.z > 0.011)
             // {

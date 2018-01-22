@@ -156,11 +156,12 @@ public:
 		printError("kaaaaaaaa");
 		shadow.draw();
 #else
+		glm::vec3 lightDir = glm::normalize(player->getPosition() - light);
 		if(player != nullptr)
-			player->draw(viewPos, renderVpCam == true ? cameraVp : lightMVP, lightMVP, light, depthTexture);
+			player->draw(viewPos, renderVpCam == true ? cameraVp : lightMVP, lightMVP, glm::normalize(-light), depthTexture);
 
 		for (auto& child : ToRender)
-			child->draw(viewPos, renderVpCam == true ? cameraVp: lightMVP, lightMVP, light + lightOffset, depthTexture);
+			child->draw(viewPos, renderVpCam == true ? cameraVp: lightMVP, lightMVP, glm::normalize(-light), depthTexture);
 #endif
 	}
 };
