@@ -17,7 +17,10 @@ private:
 	GameObject lowerBody;
 	GameObject tail;
 
-	MeshController meshController;
+	MeshController meshControllerHead;
+	MeshController meshControllerUB;
+	MeshController meshControllerLB;
+	MeshController meshControllerTail;
 
 	float animationSpeed;
 
@@ -46,7 +49,10 @@ public:
 		lowerBody.loadModel("Objects/s3.obj");
 		tail.loadModel("Objects/s4.obj");
 
-		meshController = MeshController(head.getVertices());
+		meshControllerHead = MeshController(head.getVertices());
+		meshControllerUB = MeshController(upperBody.getVertices());
+		meshControllerLB = MeshController(lowerBody.getVertices());
+		meshControllerTail = MeshController(tail.getVertices());
 
 		head.setModel(model);
 		upperBody.setModel(glm::translate(model, upperBody.getPosition()));
@@ -66,9 +72,19 @@ public:
 
 	void simplifyHead()
 	{
-		meshController.simplifyMesh(10,10, 10, [&](std::vector<Vertex>& vertices) {
+		int gridCount = 4;
+		meshControllerHead.simplifyMesh(gridCount, gridCount, gridCount/2, [&](std::vector<Vertex>& vertices) {
 			head.setVertices(vertices);
 		});
+		meshControllerUB.simplifyMesh(gridCount, gridCount, gridCount / 2, [&](std::vector<Vertex>& vertices) {
+			upperBody.setVertices(vertices);
+		});		
+		meshControllerLB.simplifyMesh(gridCount, gridCount, gridCount / 2, [&](std::vector<Vertex>& vertices) {
+			lowerBody.setVertices(vertices);
+		});		
+		meshControllerTail.simplifyMesh(gridCount, gridCount, gridCount / 2, [&](std::vector<Vertex>& vertices) {
+			tail.setVertices(vertices);
+		});		
 	}
 
 	void increaseAnimSpeed()

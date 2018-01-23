@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <iostream>
 #include <unordered_map>
+#include <unordered_set>
 #include <functional>
 #include <thread>
 
@@ -37,9 +38,9 @@ private:
 		{
 			glm::vec3 tempPos = vert.Position + positions[cell].second.Position * (float)positions[cell].first;
 			glm::vec3 tempNormal = vert.Normal + positions[cell].second.Normal * (float)positions[cell].first;
-			positions[cell].second.Position = tempPos / ((float)positions[cell].first + 1);
-			positions[cell].second.Normal = tempNormal / ((float)positions[cell].first + 1);
 			positions[cell].first++;
+			positions[cell].second.Position = tempPos / (float)positions[cell].first;
+			positions[cell].second.Normal = tempNormal / (float)positions[cell].first;
 		}
 		else
 			positions[cell] = std::make_pair(1, vert);
@@ -47,7 +48,10 @@ private:
 
 	int getCell(glm::vec3 position, float xSize, float ySize, float zSize,int xCellCount, int yCellCount)
 	{
-		return (position[0] - xStart) / xSize + ((position[1] - yStart) / ySize) * xCellCount + ((position[2] - zStart)/zSize) * xCellCount * yCellCount;
+		int xCell = (position[0] - xStart) / xSize;
+		int yCell = (position[1] - yStart) / ySize;
+		int zCell = (position[2] - zStart) / zSize;
+		return xCell + yCell * xCellCount + zCell * xCellCount * yCellCount;
 	}
 
 public:
@@ -83,7 +87,7 @@ public:
 			float xGridSize = (xEnd - xStart) / xCellCount;
 			float yGridSize = (yEnd - yStart) / yCellCount;
 			float zGridSize = (zEnd - zStart) / zCellCount;
-			std::unordered_map<int, std::unordered_map<int, int>> faces;
+			std::unordered_map<int, std::unordered_map<int, std::unordered_set<int>>> faces;
 			std::unordered_map<int, std::pair<int, Vertex>> positions;
 			for (int i = 0; i < vertices.size(); i += 3)
 			{
@@ -98,17 +102,20 @@ public:
 				if (cell1 != cell2 && cell1 != cell3 && cell2 != cell3)
 				{
 					sortThree(cell1, cell2, cell3);
-					faces[cell1][cell2] = cell3;
+					faces[cell1][cell2].insert(cell3);
 				}
 			}
 			vertices.clear();
-			for (auto& each : faces)
+			for (auto& firstCell : faces)
 			{
-				for (auto& cont : each.second)
+				for (auto& secondCell : firstCell.second)
 				{
-					vertices.push_back(positions[each.first].second);
-					vertices.push_back(positions[cont.first].second);
-					vertices.push_back(positions[cont.second].second);
+					for (auto& thirdCell : secondCell.second)
+					{
+						vertices.push_back(positions[firstCell.first].second);
+						vertices.push_back(positions[secondCell.first].second);
+						vertices.push_back(positions[thirdCell].second);
+					}
 				}
 			}
 			callback(vertices);
