@@ -47,6 +47,8 @@ public:
 
 	void draw(glm::vec3 viewPos, glm::mat4 cameraVp, glm::mat4 lightVp, glm::vec3 light, GLuint textureId)
 	{
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_ONE, GL_SRC_COLOR);
 		printError("1 ");
 		//maybe first check whether it should be drawn 
 		glBindVertexArray(vao);
@@ -75,36 +77,10 @@ public:
 		glBindVertexArray(0);
 
 		printError("OpenGL error sea: ");
+		glDisable(GL_BLEND);
 	}
 
 	void renderShadowMap(glm::mat4 lightVp)
 	{
-		//maybe first check whether it should be drawn 
-		printError("A");
-		glBindVertexArray(vao);
-		shaderDraw();
-		printError("B");
-		glUniform1i(9, 1);
-		printError("C");
-		glUniformMatrix4fv(0, 1, GL_FALSE, glm::value_ptr(lightVp));
-		glUniformMatrix4fv(7, 1, GL_FALSE, glm::value_ptr(model));
-		printError("D");
-
-		glUniform1f(3, static_cast<float>(glfwGetTime()));
-		printError("E");
-		glUniform1f(4, gridWidth);
-		glUniform1f(5, gridHeight);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
-		printError("F");
-
-		glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, (void*)0);
-		printError("D");
-		glBindVertexArray(0);
-
-		printError("yo");
-		GLenum err;
-		while ((err = glGetError()) != GL_NO_ERROR) {
-			std::cout << "OpenGL error sea: " << err << gluErrorString(err) << std::endl;
-		}
 	}
 };

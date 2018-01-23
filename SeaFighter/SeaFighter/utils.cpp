@@ -24,11 +24,11 @@ float getOriginsZ(glm::mat4 matrix)
 	return screenPos[2];
 }
 
-GLuint getTexture(std::string textureName)
+GLuint getTexture(std::string textureName,GLuint s_outbehaviour = GL_CLAMP_TO_EDGE, GLuint t_outbehaviour= GL_CLAMP_TO_EDGE)
 {
 	GLuint texture;
 	int width, height, channels;
-	stbi_uc* pixels = stbi_load("Textures/toon_map.png", &width, &height, &channels, 3);
+	stbi_uc* pixels = stbi_load(textureName.c_str(), &width, &height, &channels, 3);
 
 	// Create Texture
 	glGenTextures(1, &texture);
@@ -38,8 +38,8 @@ GLuint getTexture(std::string textureName)
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, pixels);
 
 	// Set behaviour for when texture coordinates are outside the [0, 1] range
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, s_outbehaviour);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, t_outbehaviour);
 
 	// Set interpolation for texture sampling (GL_NEAREST for no interpolation)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);

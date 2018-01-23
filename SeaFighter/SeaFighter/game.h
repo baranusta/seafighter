@@ -10,6 +10,7 @@
 #include "monster.h"
 #include "scene.h"
 #include "bullet.h"
+#include "ground.h"
 #include "text.h"
 
 #include <list>
@@ -43,6 +44,7 @@ private:
 	Text score;
 	Scene scene;
 	Sea sea;
+	Ground ground;
 	Monster monster;
 	bool isMonsterAlive;
 
@@ -73,6 +75,7 @@ private:
 	void addAllObjectsToScene()
 	{
 		scene.addPlayer(&player);
+		scene.addChildForRender(&ground);
 		scene.addChildForRender(&sea);
 		scene.addChildForRender(&monster);
 		for (auto & island : islands)
@@ -221,6 +224,7 @@ public:
 		gameArea(BBox(-15.,+15.,-15.,+15.)),
 		score("Holstein.DDS"),
 		sea(glm::vec3((gameArea.xMax - gameArea.xMin)/2, (gameArea.yMax - gameArea.yMin) / 2, 0), "sea_vs.glslx", "sea_fs.glslx"),
+		ground(glm::vec3(0,0, -0.09), glm::vec3(15,15, 0)),
 		scene(width, height),
 		player(glm::vec3(0, 0, 0)),
 		monster(glm::vec3(0,3,-0.1)),

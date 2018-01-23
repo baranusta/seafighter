@@ -6,7 +6,7 @@
 
 #define BULLET_SPEED 0.026f
 
-extern GLuint getTexture(std::string textureName);
+extern GLuint getTexture(std::string textureName, GLuint s_outbehaviour = GL_CLAMP_TO_EDGE, GLuint t_outbehaviour = GL_CLAMP_TO_EDGE);
 
 class Bullet : public Quad
 {

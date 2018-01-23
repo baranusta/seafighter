@@ -149,6 +149,7 @@
     <ClInclude Include="game.h" />
     <ClInclude Include="game_object.h" />
     <ClInclude Include="gl_controller.h" />
+    <ClInclude Include="ground.h" />
     <ClInclude Include="height_field.h" />
     <ClInclude Include="island.h" />
     <ClInclude Include="island_factory.h" />
