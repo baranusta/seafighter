@@ -18,7 +18,9 @@ Used techniques:
     Mesh is simplified using grids in its bounding box. The bounding box divided into cells then new vertices created having the average position and normal of the real vertices in the corresponding cell.
     
     Boss normal:
+    
     ![alt text](https://github.com/baranusta/seafighter/blob/master/Images/monster-normal.jpg "Non-simplified monster")
 
     Boss simplified: 
+
     ![alt text](https://github.com/baranusta/seafighter/blob/master/Images/monster-simplified.jpg "Simplified monster")
