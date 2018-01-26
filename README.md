@@ -5,6 +5,10 @@ You play as the boat and the goal is killing the mines before you die.
 Used techniques:
 - Sea animation(shaders used)
 - Dynamic Lighting & Shadow Mapping
+- Collision Detection (But no collision response)
+
+    Collision detection implemented to detect interaction between mines-boat, islands-boat and bullets-mines&islands using axis aligned bounding boxes. If any collision detected, the object is removed or game ends.
+    
 - Procedurally generated islands
 
     For each run, islands are generated randomly(position on map and shape). Heightmaps are used to create islands topography then vertices and their normals are generated.
